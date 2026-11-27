@@ -9,14 +9,14 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <script>
     tailwind.config = {
       darkMode: 'class',
       theme: { extend: {
-        fontFamily: { sans: ['DM Sans', 'Inter', 'system-ui', 'sans-serif'], mono: ['Space Mono', 'monospace'] },
+        fontFamily: { sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'], mono: ['IBM Plex Mono', 'monospace'] },
         colors: { ink: '#070b14', panel: '#0d1424', violet2: '#8b5cf6', cyan2: '#22d3ee', mint: '#34d399' },
-        boxShadow: { glow: '0 0 50px -18px rgba(139,92,246,.6)', card: '0 18px 55px -26px rgba(0,0,0,.8)' }
+        boxShadow: { glow: '0 0 0 1px rgba(148,163,184,.14), 0 12px 34px -25px rgba(15,23,42,.9)', card: '0 18px 55px -26px rgba(0,0,0,.8)' }
       } }
     };
   </script>
@@ -24,13 +24,14 @@
     :root { color-scheme: dark; }
     * { box-sizing: border-box; }
     html { scroll-behavior: smooth; }
-    body { background: #070b14; color: #e2e8f0; font-family: 'DM Sans', Inter, system-ui, sans-serif; }
+    body { background: #070b14; color: #e2e8f0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    .mono, .font-mono, .financial, .tabular-nums, .compact-number, .task-number, #kpiWeekly, #kpiAnnualHours, #kpiWorkDays, #kpiAnnualCost, #kpiWeeklyCost, #kpiRecoverable, #kpiRecoveryRate, #kpiPreTaxNet, #kpiAfterTaxNet, #paybackBadge, #automationRateLabel, #bufferLabel, #seasonalLabel, #payrollLabel, #taxLabel { font-family: 'IBM Plex Mono', monospace; font-variant-numeric: tabular-nums; }
     ::selection { color: #fff; background: #7c3aed; }
     .ambient-grid { background-image: linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px); background-size: 44px 44px; }
     .glass { background: linear-gradient(160deg,rgba(255,255,255,.065),rgba(255,255,255,.018)); border: 1px solid rgba(148,163,184,.14); backdrop-filter: blur(14px); }
     .glass-strong { background: linear-gradient(160deg,rgba(255,255,255,.085),rgba(255,255,255,.025)); border: 1px solid rgba(148,163,184,.18); }
-    .gradient-text { background: linear-gradient(90deg,#c4b5fd,#67e8f9 58%,#6ee7b7); -webkit-background-clip: text; background-clip: text; color: transparent; }
-    .gradient-button { background: linear-gradient(120deg,#7c3aed,#0891b2); }
+    .gradient-text { color: #cbd5e1; background: none; -webkit-background-clip: initial; background-clip: initial; }
+    .gradient-button { background: linear-gradient(120deg,#263a56,#334155); }
     .gradient-button:hover { filter: brightness(1.13); }
     input[type=range] { -webkit-appearance:none; appearance:none; width:100%; height:6px; border-radius:999px; outline:none; cursor:pointer; background:linear-gradient(90deg,#8b5cf6 var(--fill,50%),#1e293b var(--fill,50%)); }
     input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:18px; height:18px; border-radius:50%; background:#fff; border:3px solid #8b5cf6; box-shadow:0 2px 12px rgba(0,0,0,.55); cursor:grab; }
@@ -46,7 +47,7 @@
     .modal-open { overflow:hidden; }
     .scrollbar::-webkit-scrollbar { width:7px; height:7px; }
     .scrollbar::-webkit-scrollbar-thumb { background:#334155; border-radius:999px; }
-    .mono { font-family:'Space Mono',monospace; }
+    .mono { font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums; }
     .toast { opacity:0; transform:translate(-50%,18px); transition:all .28s ease; pointer-events:none; }
     .toast.show { opacity:1; transform:translate(-50%,0); }
     .pipeline-arrow { color:#64748b; font-size:1.4rem; font-weight:800; text-align:center; }
@@ -86,7 +87,7 @@
       <div class="flex flex-1 flex-wrap items-center justify-end gap-2">
         <label class="sr-only" for="currencySelect">Currency</label>
         <select id="currencySelect" class="rounded-xl border border-white/10 bg-[#0d1424] px-3 py-2 text-xs font-bold text-white outline-none hover:border-violet-400/50 focus:border-violet-400" title="Display currency">
-          <option value="USD">USD · $</option><option value="INR">INR · ₹</option><option value="EUR">EUR · €</option><option value="GBP">GBP · £</option>
+          <option value="USD">$ USD</option><option value="INR">₹ INR</option><option value="EUR">€ EUR</option><option value="GBP">£ GBP</option>
         </select>
         <label class="sr-only" for="presetSelect">Industry preset</label>
         <select id="presetSelect" class="max-w-[185px] rounded-xl border border-white/10 bg-[#0d1424] px-3 py-2 text-xs font-bold text-white outline-none hover:border-violet-400/50 focus:border-violet-400" title="Load an industry preset">
@@ -98,9 +99,11 @@
         <button id="reportButton" class="inline-flex items-center gap-1.5 rounded-xl bg-white px-3.5 py-2 text-xs font-extrabold text-slate-900 transition hover:bg-slate-200 sm:text-sm">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 3h7l5 5v13H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z"/><path d="M14 3v6h6M9 14h6M9 18h6"/></svg><span class="hidden sm:inline">Generate Executive Report</span><span class="sm:hidden">Report</span>
         </button>
-        <div class="hidden items-center gap-2 lg:flex">
-          <button id="exportButton" class="rounded-xl border border-white/10 px-3 py-2 text-xs font-bold text-slate-300 transition hover:bg-white/5">Export CSV</button>
-          <button id="resetButton" class="rounded-xl border border-white/10 px-3 py-2 text-xs font-bold text-slate-400 transition hover:border-rose-400/30 hover:text-rose-300">Reset demo</button>
+        <div class="flex items-center gap-1.5">
+          <button id="saveAuditButton" class="rounded-xl border border-emerald-400/20 bg-emerald-400/[.06] px-2.5 py-2 text-[10px] font-extrabold text-emerald-200 transition hover:bg-emerald-400/10 sm:px-3 sm:text-xs"><span class="sm:hidden">Save</span><span class="hidden sm:inline">Save Audit</span></button>
+          <button id="auditsButton" class="rounded-xl border border-white/10 px-2.5 py-2 text-[10px] font-bold text-slate-300 transition hover:bg-white/5 sm:px-3 sm:text-xs"><span class="sm:hidden">Audits</span><span class="hidden sm:inline">Saved Audits</span></button>
+          <button id="exportButton" class="hidden rounded-xl border border-white/10 px-3 py-2 text-xs font-bold text-slate-300 transition hover:bg-white/5 md:inline-flex">Export CSV</button>
+          <button id="resetButton" class="hidden rounded-xl border border-white/10 px-3 py-2 text-xs font-bold text-slate-400 transition hover:border-rose-400/30 hover:text-rose-300 xl:inline-flex">Reset demo</button>
         </div>
       </div>
     </div>
@@ -115,11 +118,13 @@
       <div class="mt-5 flex flex-wrap justify-center gap-2 text-[11px] font-bold text-slate-400"><span class="rounded-full border border-white/10 bg-white/[.03] px-3 py-1.5">52-week annualization</span><span class="rounded-full border border-white/10 bg-white/[.03] px-3 py-1.5">12-month ROI model</span><span class="rounded-full border border-white/10 bg-white/[.03] px-3 py-1.5">Private · saved locally</span></div>
     </section>
 
-    <section aria-label="Executive summary" class="mb-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
-      <article class="glass relative overflow-hidden rounded-2xl p-4 sm:p-5"><div class="absolute -right-6 -top-8 h-24 w-24 rounded-full bg-violet-500/20 blur-2xl"></div><p class="text-[10px] font-black uppercase tracking-[.16em] text-slate-400">Weekly Hours Lost</p><p id="kpiWeekly" class="mt-3 text-2xl font-black tabular-nums text-white sm:text-3xl">0.0 <span class="text-xs font-bold text-slate-400">hrs/wk</span></p><p class="mt-1 text-[11px] text-slate-500">Across <span id="kpiTaskCount" class="font-bold text-slate-300">0 tasks</span></p></article>
-      <article class="glass relative overflow-hidden rounded-2xl p-4 sm:p-5"><div class="absolute -right-6 -top-8 h-24 w-24 rounded-full bg-cyan-500/20 blur-2xl"></div><p class="text-[10px] font-black uppercase tracking-[.16em] text-slate-400">Annual Hours Lost</p><p id="kpiAnnualHours" class="mt-3 text-2xl font-black tabular-nums text-white sm:text-3xl">0 <span class="text-xs font-bold text-slate-400">hrs/yr</span></p><p id="kpiWorkDays" class="mt-1 text-[11px] text-slate-500">≈ 0 full work days</p></article>
-      <article class="glass relative overflow-hidden rounded-2xl border-rose-400/15 p-4 sm:p-5"><div class="absolute -right-6 -top-8 h-24 w-24 rounded-full bg-rose-500/20 blur-2xl"></div><p class="text-[10px] font-black uppercase tracking-[.16em] text-slate-400">Annual Cost of Inefficiency</p><p id="kpiAnnualCost" class="mt-3 text-2xl font-black tabular-nums text-white sm:text-3xl">$0</p><p id="kpiWeeklyCost" class="mt-1 text-[11px] text-rose-300">$0 / week burned</p></article>
-      <article class="glass relative overflow-hidden rounded-2xl border-emerald-400/15 p-4 sm:p-5"><div class="absolute -right-6 -top-8 h-24 w-24 rounded-full bg-emerald-500/20 blur-2xl"></div><p class="text-[10px] font-black uppercase tracking-[.16em] text-slate-400">Recoverable Value / Year</p><p id="kpiRecoverable" class="mt-3 text-2xl font-black tabular-nums text-emerald-300 sm:text-3xl">$0</p><p id="kpiRecoveryRate" class="mt-1 text-[11px] text-slate-500">At 70% automation efficiency</p></article>
+    <section aria-label="Executive summary" class="mb-5 grid grid-cols-2 gap-3 lg:grid-cols-3 xl:grid-cols-6">
+      <article class="glass relative overflow-hidden rounded-2xl p-4 sm:p-5"><div class="absolute -right-6 -top-8 h-24 w-24 rounded-full bg-violet-500/20 blur-2xl"></div><p class="text-[10px] font-black uppercase tracking-[.16em] text-slate-400">Weekly Hours Lost</p><p id="kpiWeekly" class="mt-3 text-xl font-black tabular-nums text-white sm:text-2xl">0.0 <span class="text-[10px] font-bold text-slate-400">hrs/wk</span></p><p class="mt-1 text-[10px] text-slate-500">Across <span id="kpiTaskCount" class="font-bold text-slate-300">0 tasks</span></p></article>
+      <article class="glass relative overflow-hidden rounded-2xl p-4 sm:p-5"><div class="absolute -right-6 -top-8 h-24 w-24 rounded-full bg-cyan-500/20 blur-2xl"></div><p class="text-[10px] font-black uppercase tracking-[.16em] text-slate-400">Annual Hours Lost</p><p id="kpiAnnualHours" class="mt-3 text-xl font-black tabular-nums text-white sm:text-2xl">0 <span class="text-[10px] font-bold text-slate-400">hrs/yr</span></p><p id="kpiWorkDays" class="mono mt-1 text-[10px] text-slate-500">≈ 0 full work days</p></article>
+      <article class="glass relative overflow-hidden rounded-2xl border-rose-400/15 p-4 sm:p-5"><div class="absolute -right-6 -top-8 h-24 w-24 rounded-full bg-rose-500/20 blur-2xl"></div><p class="text-[10px] font-black uppercase tracking-[.16em] text-slate-400">Fully-Loaded Annual Cost</p><p id="kpiAnnualCost" class="mt-3 text-xl font-black tabular-nums text-white sm:text-2xl">$0</p><p id="kpiWeeklyCost" class="mt-1 text-[10px] text-rose-300">$0 / week burned</p></article>
+      <article class="glass relative overflow-hidden rounded-2xl border-cyan-400/15 p-4 sm:p-5"><div class="absolute -right-6 -top-8 h-24 w-24 rounded-full bg-cyan-500/20 blur-2xl"></div><p class="text-[10px] font-black uppercase tracking-[.16em] text-slate-400">Recovered Capacity / Year</p><p id="kpiRecoverable" class="mt-3 text-xl font-black tabular-nums text-cyan-300 sm:text-2xl">$0</p><p id="kpiRecoveryRate" class="mt-1 text-[10px] text-slate-500">Net of friction buffer</p></article>
+      <article class="glass relative overflow-hidden rounded-2xl border-violet-400/15 p-4 sm:p-5"><div class="absolute -right-6 -top-8 h-24 w-24 rounded-full bg-violet-500/20 blur-2xl"></div><p class="text-[10px] font-black uppercase tracking-[.16em] text-slate-400">12-Mo Net · Pre-Tax</p><p id="kpiPreTaxNet" class="mt-3 text-xl font-black tabular-nums text-white sm:text-2xl">$0</p><p class="mt-1 text-[10px] text-slate-500">After setup + tool costs</p></article>
+      <article class="glass relative overflow-hidden rounded-2xl border-emerald-400/15 p-4 sm:p-5"><div class="absolute -right-6 -top-8 h-24 w-24 rounded-full bg-emerald-500/20 blur-2xl"></div><p class="text-[10px] font-black uppercase tracking-[.16em] text-slate-400">12-Mo Net · After-Tax</p><p id="kpiAfterTaxNet" class="mt-3 text-xl font-black tabular-nums text-emerald-300 sm:text-2xl">$0</p><p id="taxKpiNote" class="mt-1 text-[10px] text-slate-500">Corporate tax applied to benefit</p></article>
     </section>
 
     <!-- 12-month ROI simulator -->
@@ -143,24 +148,55 @@
         </div>
         <div class="rounded-2xl border border-white/10 bg-[#080e1a]/75 p-4">
           <div class="flex items-center justify-between gap-2"><label for="automationRate" class="text-xs font-bold text-slate-300">Automation / Recovery Assumption</label><span id="automationRateLabel" class="mono text-xs font-bold text-emerald-300">70%</span></div>
-          <input id="automationRate" type="range" min="10" max="100" step="5" value="70" class="mt-5" aria-label="Automation recovery percentage" />
-          <div class="mt-1 flex justify-between text-[10px] text-slate-500"><span>10%</span><span>100%</span></div>
-          <p class="mt-2 text-[10px] text-slate-500">Share of repetitive task capacity reclaimed after automation.</p>
+          <input id="automationRate" type="range" min="10" max="90" step="5" value="70" class="mt-5" aria-label="Automation recovery percentage" />
+          <div class="mt-1 flex justify-between text-[10px] text-slate-500"><span>10%</span><span>90% cap</span></div>
+          <p class="mt-2 text-[10px] text-slate-400">Capped at 90% — real-world workflows always require human exception handling, QA, and oversight.</p>
+        </div>
+        <div class="rounded-2xl border border-amber-400/15 bg-[#080e1a]/75 p-4">
+          <div class="flex items-center justify-between gap-2"><label for="bufferRange" class="text-xs font-bold text-slate-300">Operational Mishap &amp; Friction Buffer (%)</label><span id="bufferLabel" class="mono text-xs font-bold text-amber-300">15%</span></div>
+          <input id="bufferRange" type="range" min="0" max="40" step="1" value="15" class="mt-5" aria-label="Operational mishap and friction buffer" />
+          <div class="mt-1 flex justify-between text-[10px] text-slate-500"><span>0%</span><span>40%</span></div>
+          <p class="mt-2 text-[10px] text-slate-500">Discounts for exceptions, downtime, onboarding dips, and rework.</p>
+        </div>
+        <div class="rounded-2xl border border-sky-400/15 bg-[#080e1a]/75 p-4">
+          <div class="flex items-center justify-between gap-2"><label for="seasonalRange" class="text-xs font-bold text-slate-300">Seasonal / Volume Variance (±%)</label><span id="seasonalLabel" class="mono text-xs font-bold text-sky-300">15%</span></div>
+          <input id="seasonalRange" type="range" min="0" max="40" step="1" value="15" class="mt-5" aria-label="Seasonal volume variance" />
+          <div class="mt-1 flex justify-between text-[10px] text-slate-500"><span>0%</span><span>±40%</span></div>
+          <p class="mt-2 text-[10px] text-slate-500">Adds a 12-month wave and shaded risk range to recovered volume.</p>
+        </div>
+        <div class="rounded-2xl border border-white/10 bg-[#080e1a]/75 p-4">
+          <div class="flex items-center justify-between gap-2"><label for="payrollRange" class="text-xs font-bold text-slate-300">Employer Payroll Burden (%)</label><div class="flex items-center gap-1"><input id="payrollNum" type="number" min="0" max="50" step="0.1" value="12" class="compact-number !w-16" aria-label="Employer payroll burden percentage" /><span id="payrollLabel" class="mono text-[10px] font-bold text-violet-300">12%</span></div></div>
+          <input id="payrollRange" type="range" min="0" max="50" step="0.1" value="12" class="mt-5" aria-label="Employer payroll burden percent" />
+          <div class="mt-1 flex justify-between text-[10px] text-slate-500"><span>0%</span><span>50%</span></div>
+          <p class="mt-2 text-[10px] text-slate-500">Scales hourly labor into a fully-loaded cost.</p>
+        </div>
+        <div class="rounded-2xl border border-white/10 bg-[#080e1a]/75 p-4">
+          <div class="flex items-center justify-between gap-2"><label for="taxRange" class="text-xs font-bold text-slate-300">Effective Corporate Tax Rate (%)</label><div class="flex items-center gap-1"><input id="taxNum" type="number" min="0" max="50" step="0.1" value="25" class="compact-number !w-16" aria-label="Effective corporate tax percentage" /><span id="taxLabel" class="mono text-[10px] font-bold text-cyan-300">25%</span></div></div>
+          <input id="taxRange" type="range" min="0" max="50" step="0.1" value="25" class="mt-5" aria-label="Effective corporate tax rate percent" />
+          <div class="mt-1 flex justify-between text-[10px] text-slate-500"><span>0%</span><span>50%</span></div>
+          <div class="mt-2 flex items-center justify-between gap-2"><p id="taxRegionLabel" class="text-[10px] text-slate-500">United States preset</p><button id="taxPresetButton" class="shrink-0 text-[9px] font-bold text-cyan-300 underline decoration-cyan-300/30 underline-offset-2">Use regional defaults</button></div>
         </div>
       </div>
       <div class="grid gap-4 px-5 pb-5 sm:px-7 sm:pb-7 xl:grid-cols-[1.6fr_1fr]">
         <div class="rounded-2xl border border-white/10 bg-[#080e1a]/70 p-4 sm:p-5">
-          <div class="mb-3 flex flex-wrap items-start justify-between gap-2"><div><h3 class="font-extrabold text-white">Cumulative status quo vs. net savings</h3><p class="mt-1 text-xs text-slate-500">Month-by-month model · net savings subtract setup and ongoing tool costs</p></div><span id="roiChartCurrency" class="rounded-lg border border-white/10 bg-white/[.03] px-2 py-1 text-[10px] font-bold text-slate-400">USD</span></div>
+          <div class="mb-3 flex flex-wrap items-start justify-between gap-2"><div><h3 class="font-extrabold text-white">Cumulative cost &amp; risk-adjusted net impact</h3><p class="mt-1 text-xs text-slate-500">Seasonal volume wave · friction-discounted recovery · shaded confidence range</p></div><span id="roiChartCurrency" class="rounded-lg border border-white/[.07] bg-white/[.03] px-2 py-1 text-[10px] font-bold text-slate-400">USD</span></div>
           <div class="relative h-[270px] sm:h-[330px]"><canvas id="roiChart" aria-label="12-month cumulative ROI chart"></canvas><div id="roiFallback" class="hidden h-full w-full"></div><div id="roiChartEmpty" class="pointer-events-none absolute inset-0 hidden items-center justify-center text-sm font-semibold text-slate-500">No tracked task cost yet — add tasks to model value.</div></div>
         </div>
         <div class="rounded-2xl border border-white/10 bg-[#080e1a]/70 p-4 sm:p-5">
           <div class="mb-3"><h3 class="font-extrabold text-white">12-month forecast</h3><p class="mt-1 text-xs text-slate-500">Cumulative values in selected currency</p></div>
           <div class="scrollbar max-h-[330px] overflow-auto rounded-xl border border-white/10">
-            <table class="w-full min-w-[450px] border-collapse text-left text-xs"><thead class="sticky top-0 bg-[#121c2d] text-[9px] uppercase tracking-wider text-slate-400"><tr><th class="px-3 py-3">Month</th><th class="px-3 py-3 text-right">Status quo</th><th class="px-3 py-3 text-right">Net savings</th></tr></thead><tbody id="roiTableBody" class="divide-y divide-white/[.06]"></tbody></table>
+            <table class="w-full min-w-[620px] border-collapse text-left text-xs"><thead class="sticky top-0 bg-[#121c2d] text-[9px] uppercase tracking-wider text-slate-400"><tr><th class="px-3 py-3">Month</th><th class="px-3 py-3 text-right">Status quo</th><th class="px-3 py-3 text-right">Pre-tax net</th><th class="px-3 py-3 text-right">After-tax net</th></tr></thead><tbody id="roiTableBody" class="divide-y divide-white/[.06]"></tbody></table>
           </div>
-          <div class="mt-4 grid grid-cols-2 gap-2"><div class="rounded-xl border border-white/10 bg-white/[.025] p-3"><p class="text-[9px] font-black uppercase tracking-wider text-slate-500">12-mo net value</p><p id="netValue12" class="mt-1 text-sm font-black text-white">$0</p></div><div class="rounded-xl border border-white/10 bg-white/[.025] p-3"><p class="text-[9px] font-black uppercase tracking-wider text-slate-500">Projected ROI</p><p id="roiPercent12" class="mt-1 text-sm font-black text-emerald-300">—</p></div></div>
+          <div class="mt-4 grid grid-cols-3 gap-2"><div class="rounded-xl border border-white/10 bg-white/[.025] p-3"><p class="text-[9px] font-black uppercase tracking-wider text-slate-500">12-mo pre-tax</p><p id="preTaxValue12" class="financial mt-1 text-xs font-black text-white">$0</p></div><div class="rounded-xl border border-white/10 bg-white/[.025] p-3"><p class="text-[9px] font-black uppercase tracking-wider text-slate-500">12-mo after-tax</p><p id="netValue12" class="financial mt-1 text-xs font-black text-emerald-300">$0</p></div><div class="rounded-xl border border-white/10 bg-white/[.025] p-3"><p class="text-[9px] font-black uppercase tracking-wider text-slate-500">After-tax ROI</p><p id="roiPercent12" class="financial mt-1 text-xs font-black text-emerald-300">—</p></div></div>
         </div>
       </div>
+    </section>
+
+    <!-- Scenario comparison -->
+    <section class="glass mb-6 rounded-3xl p-5 sm:p-6">
+      <div class="mb-4 flex flex-wrap items-end justify-between gap-3"><div><p class="text-[10px] font-black uppercase tracking-[.17em] text-cyan-300">Scenario modeling</p><h2 class="mt-1 text-lg font-black text-white">Conservative · Base · Upside</h2><p class="mt-1 text-xs text-slate-500">What-if cases are calculated from your live inputs and do not overwrite the sliders above.</p></div><span class="rounded-full border border-white/10 bg-white/[.03] px-3 py-1.5 text-[9px] font-bold text-slate-400">12-month modeled impact · current jurisdiction</span></div>
+      <div class="scrollbar overflow-x-auto rounded-xl border border-white/10"><table class="w-full min-w-[850px] border-collapse text-left text-[10px]"><thead class="bg-[#121c2d] text-[8px] uppercase tracking-wider text-slate-400"><tr><th class="px-3 py-3">Scenario</th><th class="px-3 py-3 text-right">Effective recovery</th><th class="px-3 py-3 text-right">Friction buffer</th><th class="px-3 py-3 text-right">Build cost</th><th class="px-3 py-3 text-right">12-mo pre-tax</th><th class="px-3 py-3 text-right">12-mo after-tax</th><th class="px-3 py-3 text-right">Break-even</th></tr></thead><tbody id="scenarioTableBody" class="divide-y divide-white/[.06]"></tbody></table></div>
+      <p class="mt-3 text-[9px] text-slate-600">Conservative: −15 percentage points automation, +10 points mishap buffer, +20% setup and tools. Upside: +10 points automation (still capped at 90%), −5 points buffer, −10% setup and tools. Seasonal variance remains as configured.</p>
     </section>
 
     <!-- Bottleneck visualization and insight -->
@@ -177,6 +213,12 @@
       </aside>
     </section>
 
+    <!-- Feasibility scoring and 30/60/90 implementation plan -->
+    <section class="mb-6 grid gap-4 xl:grid-cols-[.85fr_1.5fr]">
+      <aside class="glass rounded-3xl p-5 sm:p-6"><p class="text-[10px] font-black uppercase tracking-[.17em] text-emerald-300">Automation feasibility</p><h2 class="mt-1 text-lg font-black text-white">Execution readiness score</h2><p class="mt-1 text-xs leading-5 text-slate-500">A transparent heuristic based on repetition, annual effort, digital category fit, and task predictability.</p><div id="feasibilitySummary" class="mt-4"></div><div id="feasibilityList" class="mt-4 space-y-2"></div></aside>
+      <div class="glass rounded-3xl p-5 sm:p-6"><div class="mb-4 flex flex-wrap items-end justify-between gap-3"><div><p class="text-[10px] font-black uppercase tracking-[.17em] text-violet-300">Implementation sequence</p><h2 class="mt-1 text-lg font-black text-white">30 / 60 / 90-Day Roadmap</h2><p class="mt-1 text-xs text-slate-500">Prioritized from task cost, feasibility, and recovered capacity.</p></div><span class="text-[9px] font-bold text-slate-600">Pilot → integrate → optimize</span></div><div id="roadmapContent" class="grid gap-3 md:grid-cols-3"></div></div>
+    </section>
+
     <!-- Task builder -->
     <section class="glass-strong mb-6 rounded-3xl p-5 shadow-card sm:p-7">
       <div class="mb-5 flex flex-wrap items-end justify-between gap-3"><div><p class="text-[10px] font-black uppercase tracking-[.17em] text-emerald-300">Build your audit</p><h2 class="mt-1 text-xl font-black text-white">Add a repetitive workflow</h2><p class="mt-1 text-sm text-slate-400">Estimate the real recurring effort. Everything recalculates live.</p></div><span class="rounded-lg border border-white/10 bg-white/[.03] px-2.5 py-1.5 text-[10px] font-bold text-slate-500">Saved privately in this browser</span></div>
@@ -189,23 +231,35 @@
         <div class="space-y-4">
           <div class="slider-block"><div class="mb-2 flex items-center justify-between gap-2"><label for="formMinutesRange" class="text-[10px] font-black uppercase tracking-[.15em] text-slate-400">Minutes per day</label><div class="flex items-center gap-2"><input id="formMinutesNum" type="number" min="5" max="240" step="5" value="30" class="compact-number" /><span class="text-[10px] font-bold text-slate-500">min/day</span></div></div><input id="formMinutesRange" type="range" min="5" max="240" step="5" value="30" /><div class="mt-1 flex justify-between text-[9px] font-bold text-slate-600"><span>5 min</span><span>4 hrs</span></div></div>
           <div class="slider-block"><div class="mb-2 flex items-center justify-between gap-2"><label for="formDaysRange" class="text-[10px] font-black uppercase tracking-[.15em] text-slate-400">Days per week</label><div class="flex items-center gap-2"><input id="formDaysNum" type="number" min="1" max="7" step="1" value="5" class="compact-number !w-14" /><span class="text-[10px] font-bold text-slate-500">days/wk</span></div></div><input id="formDaysRange" type="range" min="1" max="7" step="1" value="5" /><div class="mt-1 flex justify-between text-[9px] font-bold text-slate-600"><span>1 day</span><span>7 days</span></div></div>
-          <div class="slider-block"><div class="mb-2 flex items-center justify-between gap-2"><label for="formRateRange" class="text-[10px] font-black uppercase tracking-[.15em] text-slate-400">Hourly value</label><div class="flex items-center gap-1.5"><span id="formRateSymbol" class="text-xs font-black text-slate-400">$</span><input id="formRateNum" type="number" min="10" max="300" step="0.01" value="50" class="compact-number" /><span class="text-[10px] font-bold text-slate-500">/hr</span></div></div><input id="formRateRange" type="range" /><div class="mt-1 flex justify-between text-[9px] font-bold text-slate-600"><span id="formRateMinLabel">$10/hr</span><span id="formRateMaxLabel">$300/hr</span></div></div>
-          <div class="flex flex-wrap items-center gap-3 pt-1"><button type="submit" class="gradient-button flex-1 rounded-xl px-4 py-3.5 text-sm font-black text-white shadow-glow transition active:scale-[.99]">Add task &amp; calculate <span aria-hidden="true">→</span></button><div class="min-w-[135px] text-right"><p class="text-[9px] font-black uppercase tracking-wider text-slate-600">This task costs</p><p id="formPreview" class="text-sm font-black text-white">$6,500 <span class="text-[10px] font-bold text-slate-500">/ yr</span></p></div></div>
+          <div class="slider-block"><div class="mb-2 flex items-center justify-between gap-2"><label for="formRateRange" class="text-[10px] font-black uppercase tracking-[.15em] text-slate-400">Base hourly value</label><div class="flex items-center gap-1.5"><span id="formRateSymbol" class="text-xs font-black text-slate-400">$</span><input id="formRateNum" type="number" min="10" max="300" step="0.01" value="50" class="compact-number" /><span class="text-[10px] font-bold text-slate-500">/hr</span></div></div><input id="formRateRange" type="range" /><div class="mt-1 flex justify-between text-[9px] font-bold text-slate-600"><span id="formRateMinLabel">$10/hr</span><span id="formRateMaxLabel">$300/hr</span></div></div>
+          <div class="flex flex-wrap items-center gap-3 pt-1"><button type="submit" class="gradient-button flex-1 rounded-xl px-4 py-3.5 text-sm font-black text-white shadow-glow transition active:scale-[.99]">Add task &amp; calculate <span aria-hidden="true">→</span></button><div class="min-w-[135px] text-right"><p class="text-[9px] font-black uppercase tracking-wider text-slate-600">Fully-loaded annual cost</p><p id="formPreview" class="financial text-sm font-black text-white">$6,500 <span class="text-[10px] font-bold text-slate-500">/ yr</span></p></div></div>
         </div>
       </form>
     </section>
 
     <!-- Task cards -->
     <section>
-      <div class="mb-4 flex flex-wrap items-end justify-between gap-3"><div><p class="text-[10px] font-black uppercase tracking-[.17em] text-violet-300">Workflow inventory</p><h2 class="mt-1 text-xl font-black text-white">Your bottlenecks <span id="taskCountBadge" class="ml-1 rounded-full border border-violet-400/20 bg-violet-400/10 px-2.5 py-1 align-middle text-xs font-black text-violet-200">0</span></h2></div><p class="text-[11px] font-semibold text-slate-500">Edit the fields or drag the sliders to stress-test your assumptions.</p></div>
+      <div class="mb-4 flex flex-wrap items-end justify-between gap-3"><div><p class="text-[10px] font-black uppercase tracking-[.17em] text-violet-300">Workflow inventory</p><h2 class="mt-1 text-xl font-black text-white">Your bottlenecks <span id="taskCountBadge" class="ml-1 rounded-full border border-violet-400/20 bg-violet-400/10 px-2.5 py-1 align-middle text-xs font-black text-violet-200">0</span></h2></div><div class="flex flex-wrap items-center gap-3"><p class="text-[11px] font-semibold text-slate-500">Edit fields or drag sliders to stress-test assumptions.</p><label class="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-violet-400/20 bg-violet-400/[.06] px-3 py-2 text-[10px] font-extrabold text-violet-100"><input id="coupledToggle" type="checkbox" checked class="accent-violet-500" /><span>Coupled Category Dynamics</span></label></div></div>
+      <p class="mb-4 text-[10px] leading-4 text-slate-600">When enabled, pairs A Sales ↔ Marketing, B Communication ↔ Meetings, and C Reporting ↔ Data rebalance a fixed pair-cost budget. Moving one task scales its paired task’s minutes, days, and hourly value together (bounded at each control’s limits).</p>
       <div id="taskGrid" class="grid gap-4 md:grid-cols-2 xl:grid-cols-3"></div>
       <div id="emptyState" class="glass hidden rounded-3xl p-10 text-center"><span class="text-5xl">🧭</span><h3 class="mt-3 text-lg font-black text-white">Start with one workflow</h3><p class="mt-1 text-sm text-slate-500">Add a task above or choose an industry preset to get an initial audit.</p></div>
     </section>
 
-    <section class="mt-10 grid gap-3 rounded-2xl border border-white/10 bg-white/[.02] p-5 sm:grid-cols-3 sm:p-6">
-      <div><p class="mono text-[9px] font-bold uppercase tracking-widest text-violet-300">01 / Weekly hours</p><p class="mt-2 text-xs leading-5 text-slate-400"><span class="mono text-slate-200">minutes/day × days/week ÷ 60</span><br />Effort spent on the repeating task.</p></div>
-      <div><p class="mono text-[9px] font-bold uppercase tracking-widest text-cyan-300">02 / Annual cost</p><p class="mt-2 text-xs leading-5 text-slate-400"><span class="mono text-slate-200">weekly hours × 52 × hourly value</span><br />Opportunity cost at the selected currency view.</p></div>
-      <div><p class="mono text-[9px] font-bold uppercase tracking-widest text-emerald-300">03 / Net savings</p><p class="mt-2 text-xs leading-5 text-slate-400"><span class="mono text-slate-200">recovered value − setup − monthly tools</span><br />A planning estimate; actual savings depend on adoption.</p></div>
+    <section class="mt-10 rounded-3xl border border-white/10 bg-white/[.02] p-5 sm:p-6">
+      <div><p class="text-[10px] font-black uppercase tracking-[.17em] text-violet-300">Methodology &amp; FAQ</p><h2 class="mt-1 text-xl font-black text-white">Transparent assumptions, not a black box</h2></div>
+      <div class="mt-4 grid gap-3 sm:grid-cols-3">
+        <div class="rounded-xl border border-white/10 bg-white/[.025] p-4"><p class="mono text-[9px] font-bold uppercase tracking-widest text-violet-300">01 / Fully loaded labor</p><p class="mt-2 text-xs leading-5 text-slate-400"><span class="mono text-slate-200">minutes × days ÷ 60 × 52 × base hourly value × (1 + payroll burden)</span><br />Payroll/social charges are included before estimating recovered capacity.</p></div>
+        <div class="rounded-xl border border-white/10 bg-white/[.025] p-4"><p class="mono text-[9px] font-bold uppercase tracking-widest text-cyan-300">02 / Risk-adjusted recovery</p><p class="mt-2 text-xs leading-5 text-slate-400"><span class="mono text-slate-200">loaded labor cost × recovery % × (1 − mishap buffer)</span><br />Recovery is capped at 90%; the seasonal wave changes monthly volume.</p></div>
+        <div class="rounded-xl border border-white/10 bg-white/[.025] p-4"><p class="mono text-[9px] font-bold uppercase tracking-widest text-emerald-300">03 / Net impact</p><p class="mt-2 text-xs leading-5 text-slate-400"><span class="mono text-slate-200">recovered benefit − setup − 12 × monthly tools</span><br />After-tax impact taxes the benefit and assumes no tax shield on costs.</p></div>
+      </div>
+      <div id="faq" class="mt-5 space-y-2">
+        <details class="rounded-xl border border-white/10 bg-white/[.025] p-4"><summary class="cursor-pointer text-xs font-extrabold text-slate-200">What do the mishap buffer and seasonal variance do?</summary><p class="mt-2 text-[11px] leading-5 text-slate-400">The default 15% Operational Mishap &amp; Friction Buffer discounts recovered capacity for exceptions, downtime, onboarding dips, and maintenance rework. Seasonal / Volume Variance (±%) applies the smooth multiplier 1 + variance × sin(2π × monthIndex / 12 − π/2), with monthIndex starting at zero, to status-quo cost and recovered volume. The chart shades a confidence band by applying the same selected variance above and below each month’s expected recovered value. It is a planning wave, not a forecast from historical data.</p></details>
+        <details class="rounded-xl border border-white/10 bg-white/[.025] p-4"><summary class="cursor-pointer text-xs font-extrabold text-slate-200">How do coupled category dynamics rebalance costs?</summary><p class="mt-2 text-[11px] leading-5 text-slate-400">When enabled, Pair A Sales ↔ Marketing, Pair B Communication ↔ Meetings, and Pair C Reporting ↔ Data (including Data &amp; Admin) conserve the pair’s prior annual cost as one task’s slider changes. The partner’s target cost becomes the prior pair total minus the edited task’s new cost. Its minutes/day and days/week are selected closest to a cube-root-proportional rebalance; its base hourly value is recalculated to preserve the target cost. Valid bounds still apply, so an extreme input may shift the pair total slightly. All KPIs, shares, charts, scenarios, and report figures recalculate live.</p></details>
+        <details class="rounded-xl border border-white/10 bg-white/[.025] p-4"><summary class="cursor-pointer text-xs font-extrabold text-slate-200">Why can’t automation recovery reach 100%?</summary><p class="mt-2 text-[11px] leading-5 text-slate-400">The recovery assumption is hard-capped at 90%. Human exception handling, QA, privacy checks, and oversight remain in real workflows. The separate mishap buffer discounts that maximum further for operational friction.</p></details>
+        <details class="rounded-xl border border-white/10 bg-white/[.025] p-4"><summary class="cursor-pointer text-xs font-extrabold text-slate-200">Which tax and payroll presets are applied?</summary><p class="mt-2 text-[11px] leading-5 text-slate-400">Changing currency selects a regional planning preset unless you have made a custom override: US Federal + State ≈25% effective corporate tax / 12% employer payroll burden; India 25.17% / 12% PF-overhead; EU blended 25% / 20% social charges; UK 25% / 13.8% employer NI. Payroll burden multiplies each task’s base hourly value to estimate fully-loaded labor cost. Corporate tax applies to recovered benefit only; setup and monthly tool costs are subtracted after tax without assuming a deductible-cost tax shield. These are editable estimates, not tax advice.</p></details>
+        <details class="rounded-xl border border-white/10 bg-white/[.025] p-4"><summary class="cursor-pointer text-xs font-extrabold text-slate-200">How should I read scenarios, feasibility, and the roadmap?</summary><p class="mt-2 text-[11px] leading-5 text-slate-400">Conservative, Base, and Upside cases are what-if views derived from your live sliders; they do not overwrite your audit. Feasibility is a transparent 0–100 heuristic based on recurrence, annual effort, digital category fit, and repeatability—not a guarantee. The 30/60/90 roadmap orders pilots by value and readiness. Save Audit stores a local snapshot in this browser; Share URL serializes the current audit into the link.</p></details>
+        <details class="rounded-xl border border-white/10 bg-white/[.025] p-4"><summary class="cursor-pointer text-xs font-extrabold text-slate-200">Are exchange rates live, and where is my data stored?</summary><p class="mt-2 text-[11px] leading-5 text-slate-400">No. Currency conversions use editable planning rates from USD in the script (USD 1, INR 83.50, EUR 0.92, GBP 0.79). Audit data and saved snapshots stay in browser localStorage; no backend is used. A shared URL contains the encoded audit state in its hash.</p></details>
+      </div>
     </section>
     <footer class="pb-2 pt-8 text-center text-[10px] text-slate-600">Workflow ROI Platform · Single-file app · Tailwind CSS + Chart.js · Browser-local data · FX conversions are planning estimates</footer>
   </main>
@@ -218,6 +272,15 @@
   <div class="modal-backdrop" data-close-blueprint></div>
   <section role="dialog" aria-modal="true" aria-labelledby="blueprintTitle" class="modal-shell scrollbar rounded-3xl bg-[#0b1220]">
     <div id="blueprintContent"></div>
+  </section>
+</div>
+
+<!-- Local saved-audits drawer -->
+<div id="savedAuditsModal" class="modal" hidden>
+  <div class="modal-backdrop" data-close-audits></div>
+  <section role="dialog" aria-modal="true" aria-labelledby="savedAuditsTitle" class="modal-shell scrollbar rounded-3xl bg-[#0b1220]">
+    <div class="flex items-start justify-between gap-3 border-b border-white/10 px-5 py-4 sm:px-7"><div><p class="text-[9px] font-black uppercase tracking-[.16em] text-emerald-300">Browser-local snapshots</p><h2 id="savedAuditsTitle" class="mt-1 text-xl font-black text-white">Saved audits</h2><p class="mt-1 text-xs text-slate-500">Save, restore, or delete a point-in-time scenario. Up to 12 snapshots are kept on this device.</p></div><button data-close-audits class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/10 text-slate-400 hover:bg-white/10" aria-label="Close saved audits">✕</button></div>
+    <div class="p-5 sm:p-7"><form id="saveAuditForm" class="flex flex-col gap-2 sm:flex-row"><input id="auditNameInput" maxlength="60" required placeholder="Name this audit, e.g. Q4 automation case" class="min-w-0 flex-1 rounded-xl border border-white/10 bg-[#070b14] px-4 py-3 text-sm font-semibold text-white outline-none placeholder:text-slate-600 focus:border-emerald-400" /><button class="rounded-xl bg-emerald-400 px-4 py-3 text-xs font-black text-slate-950 transition hover:bg-emerald-300">Save current snapshot</button></form><div class="mt-5 flex items-center justify-between"><h3 class="text-[10px] font-black uppercase tracking-[.15em] text-slate-500">Saved snapshots</h3><span id="savedAuditCount" class="text-[9px] font-bold text-slate-600">0 / 12</span></div><div id="savedAuditsList" class="mt-3 space-y-2"></div></div>
   </section>
 </div>
 
@@ -249,9 +312,16 @@
   /* ---------------------------- Configuration ---------------------------- */
   const STORAGE_KEY = 'workflow-roi-platform-v2';
   const LEGACY_KEY = 'workflow-roi-tasks-v1';
+  const SAVED_AUDITS_KEY = 'workflow-roi-saved-audits-v1';
   const WEEKS_PER_YEAR = 52;
   const HOURS_PER_WORKDAY = 8;
   const FX_FROM_USD = Object.freeze({ USD: 1, INR: 83.5, EUR: 0.92, GBP: 0.79 });
+  const TAX_PRESETS = Object.freeze({
+    USD: { region: 'US Federal + State', corporateTaxPct: 25, payrollBurdenPct: 12 },
+    INR: { region: 'India', corporateTaxPct: 25.17, payrollBurdenPct: 12 },
+    EUR: { region: 'EU blended', corporateTaxPct: 25, payrollBurdenPct: 20 },
+    GBP: { region: 'United Kingdom', corporateTaxPct: 25, payrollBurdenPct: 13.8 }
+  });
   const CURRENCY_LOCALE = Object.freeze({ USD: 'en-US', INR: 'en-IN', EUR: 'en-IE', GBP: 'en-GB' });
   const CURRENCIES = ['USD', 'INR', 'EUR', 'GBP'];
   const CATEGORY_LIST = ['Communication', 'Data & Admin', 'Reporting', 'Meetings', 'Marketing', 'Finance', 'Operations', 'E-Commerce', 'Sales', 'Customer Support', 'Other'];
@@ -307,6 +377,7 @@
   };
   const DEFAULT_STATE = {
     currency: 'USD', preset: 'current', setupCostUSD: 1800, monthlyToolCostUSD: 165, automationRate: 70,
+    mishapBufferPct: 15, seasonalVariancePct: 15, payrollBurdenPct: 12, corporateTaxPct: 25, taxOverride: false, coupledDynamics: true,
     tasks: DEFAULT_TASKS.map(t => ({ ...t }))
   };
 
@@ -322,15 +393,21 @@
   const currencySymbol = () => new Intl.NumberFormat(locale(), { style: 'currency', currency: state.currency, maximumFractionDigits: 0 }).formatToParts(0).find(p => p.type === 'currency')?.value || '$';
   const formatSelected = (amount, digits = 0) => new Intl.NumberFormat(locale(), { style: 'currency', currency: state.currency, minimumFractionDigits: digits, maximumFractionDigits: digits }).format(Number.isFinite(Number(amount)) ? Number(amount) : 0);
   const money = (usd, digits = 0) => formatSelected(toSelected(usd), digits);
+  const moneyInCurrency = (usd, code = state.currency, digits = 0) => {
+    const currency = validCurrency(code), amount = Number.isFinite(Number(usd)) ? Number(usd) * FX_FROM_USD[currency] : 0;
+    return new Intl.NumberFormat(CURRENCY_LOCALE[currency], { style: 'currency', currency, minimumFractionDigits: digits, maximumFractionDigits: digits }).format(amount);
+  };
   const inputMoney = usd => String(roundTo(toSelected(usd), 2));
-  const number = (n, digits = 1) => new Intl.NumberFormat(locale(), { minimumFractionDigits: digits, maximumFractionDigits: digits }).format(Number(n) || 0);
-  const pct = n => `${Math.round(Number(n) || 0)}%`;
+  const number = (n, digits = 1) => new Intl.NumberFormat(locale(), { minimumFractionDigits: digits, maximumFractionDigits: digits }).format(Number.isFinite(Number(n)) ? Number(n) : 0);
+  const pct = n => `${Math.round(Number.isFinite(Number(n)) ? Number(n) : 0)}%`;
+  const pctExact = n => `${new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(Number.isFinite(Number(n)) ? Number(n) : 0)}%`;
   const validCurrency = code => CURRENCIES.includes(code) ? code : 'USD';
   const getTask = id => state.tasks.find(t => t.id === id);
   let state;
   let formDraft = { minutesPerDay: 30, daysPerWeek: 5, hourlyValueUSD: 50 };
   let bottleneckChart = null;
   let roiChart = null;
+  let savedAudits = [];
   let toastTimer = null;
   let focusedBeforeModal = null;
 
@@ -348,12 +425,23 @@
 
   function normalizeState(raw) {
     const base = { ...DEFAULT_STATE, ...raw };
+    const currency = validCurrency(base.currency);
+    const regional = TAX_PRESETS[currency];
+    const finite = (value, fallback) => Number.isFinite(Number(value)) ? Number(value) : fallback;
+    const payrollRaw = raw && Object.prototype.hasOwnProperty.call(raw, 'payrollBurdenPct') ? raw.payrollBurdenPct : regional.payrollBurdenPct;
+    const taxRaw = raw && Object.prototype.hasOwnProperty.call(raw, 'corporateTaxPct') ? raw.corporateTaxPct : regional.corporateTaxPct;
     const tasks = Array.isArray(raw?.tasks) ? raw.tasks.map(normalizeTask) : DEFAULT_TASKS.map(normalizeTask);
     return {
-      currency: validCurrency(base.currency), preset: PRESETS[base.preset] ? base.preset : 'current',
-      setupCostUSD: clamp(Number(base.setupCostUSD) || 0, 0, 100000),
-      monthlyToolCostUSD: clamp(Number(base.monthlyToolCostUSD) || 0, 0, 10000),
-      automationRate: clamp(Number(base.automationRate) || 70, 10, 100), tasks
+      currency, preset: PRESETS[base.preset] ? base.preset : 'current',
+      setupCostUSD: clamp(finite(base.setupCostUSD, DEFAULT_STATE.setupCostUSD), 0, 100000),
+      monthlyToolCostUSD: clamp(finite(base.monthlyToolCostUSD, DEFAULT_STATE.monthlyToolCostUSD), 0, 10000),
+      automationRate: clamp(finite(base.automationRate, 70), 10, 90),
+      mishapBufferPct: clamp(finite(base.mishapBufferPct, 15), 0, 40),
+      seasonalVariancePct: clamp(finite(base.seasonalVariancePct, 15), 0, 40),
+      payrollBurdenPct: clamp(finite(payrollRaw, regional.payrollBurdenPct), 0, 50),
+      corporateTaxPct: clamp(finite(taxRaw, regional.corporateTaxPct), 0, 50),
+      taxOverride: Boolean(base.taxOverride),
+      coupledDynamics: raw?.coupledDynamics === undefined ? true : Boolean(base.coupledDynamics), tasks
     };
   }
 
@@ -388,16 +476,21 @@
     catch (error) { console.warn('Browser storage is unavailable or full.', error); }
   }
 
-  function taskMath(task) {
-    const weeklyHours = (Number(task.minutesPerDay) * Number(task.daysPerWeek)) / 60;
+  function taskMath(task, payrollBurdenPct = state.payrollBurdenPct) {
+    const minutes = clamp(Number.isFinite(Number(task.minutesPerDay)) ? Number(task.minutesPerDay) : 30, 5, 240);
+    const days = clamp(Number.isFinite(Number(task.daysPerWeek)) ? Number(task.daysPerWeek) : 5, 1, 7);
+    const baseHourlyUSD = clamp(Number.isFinite(Number(task.hourlyValueUSD)) ? Number(task.hourlyValueUSD) : 50, 10, 300);
+    const weeklyHours = (minutes * days) / 60;
     const annualHours = weeklyHours * WEEKS_PER_YEAR;
-    const annualCostUSD = annualHours * Number(task.hourlyValueUSD);
-    return { weeklyHours, annualHours, annualCostUSD, weeklyCostUSD: weeklyHours * Number(task.hourlyValueUSD) };
+    const burden = clamp(Number.isFinite(Number(payrollBurdenPct)) ? Number(payrollBurdenPct) : 12, 0, 50);
+    const loadedHourlyUSD = baseHourlyUSD * (1 + burden / 100);
+    const annualCostUSD = annualHours * loadedHourlyUSD;
+    return { weeklyHours, annualHours, baseHourlyUSD, loadedHourlyUSD, annualCostUSD, weeklyCostUSD: weeklyHours * loadedHourlyUSD };
   }
 
-  function totals() {
-    return state.tasks.reduce((acc, task) => {
-      const c = taskMath(task);
+  function totals(tasks = state.tasks, payrollBurdenPct = state.payrollBurdenPct) {
+    return tasks.reduce((acc, task) => {
+      const c = taskMath(task, payrollBurdenPct);
       acc.weeklyHours += c.weeklyHours;
       acc.annualHours += c.annualHours;
       acc.annualCostUSD += c.annualCostUSD;
@@ -406,32 +499,80 @@
     }, { weeklyHours: 0, annualHours: 0, annualCostUSD: 0, weeklyCostUSD: 0 });
   }
 
-  function simulation() {
-    const t = totals();
-    const recoveredAnnualUSD = t.annualCostUSD * state.automationRate / 100;
+  function seasonalMultiplier(monthIndex, variancePct) {
+    const amplitude = clamp(Number(variancePct) || 0, 0, 40) / 100;
+    return Math.max(0, 1 + amplitude * Math.sin((2 * Math.PI * (monthIndex % 12) / 12) - Math.PI / 2));
+  }
+
+  function simulation(overrides = {}) {
+    const params = { ...state, ...overrides };
+    const t = totals(Array.isArray(params.tasks) ? params.tasks : state.tasks, params.payrollBurdenPct);
+    const automationRate = clamp(Number.isFinite(Number(params.automationRate)) ? Number(params.automationRate) : 70, 10, 90);
+    const mishapBufferPct = clamp(Number.isFinite(Number(params.mishapBufferPct)) ? Number(params.mishapBufferPct) : 15, 0, 40);
+    const seasonalVariancePct = clamp(Number.isFinite(Number(params.seasonalVariancePct)) ? Number(params.seasonalVariancePct) : 15, 0, 40);
+    const taxRate = clamp(Number.isFinite(Number(params.corporateTaxPct)) ? Number(params.corporateTaxPct) : 25, 0, 50) / 100;
+    const setupCostUSD = clamp(Number.isFinite(Number(params.setupCostUSD)) ? Number(params.setupCostUSD) : 0, 0, 100000);
+    const monthlyToolCostUSD = clamp(Number.isFinite(Number(params.monthlyToolCostUSD)) ? Number(params.monthlyToolCostUSD) : 0, 0, 10000);
+    const grossPotentialAnnualUSD = t.annualCostUSD * automationRate / 100;
+    const recoveredAnnualUSD = grossPotentialAnnualUSD * (1 - mishapBufferPct / 100);
     const recoveredMonthlyUSD = recoveredAnnualUSD / 12;
-    const monthlyNetUSD = recoveredMonthlyUSD - state.monthlyToolCostUSD;
-    const net12USD = recoveredAnnualUSD - state.setupCostUSD - state.monthlyToolCostUSD * 12;
-    const totalInvestmentUSD = state.setupCostUSD + state.monthlyToolCostUSD * 12;
-    const roiPercent = totalInvestmentUSD > 0 ? (net12USD / totalInvestmentUSD) * 100 : (recoveredAnnualUSD > 0 ? Infinity : null);
-    let paybackMonths = null;
-    if (monthlyNetUSD > 0) paybackMonths = state.setupCostUSD === 0 ? 0 : state.setupCostUSD / monthlyNetUSD;
-    const months = Array.from({ length: 12 }, (_, i) => i + 1).map(month => ({
-      month,
-      statusQuoUSD: (t.annualCostUSD / 12) * month,
-      recoveredUSD: recoveredMonthlyUSD * month,
-      toolCostUSD: state.monthlyToolCostUSD * month,
-      netSavingsUSD: recoveredMonthlyUSD * month - state.monthlyToolCostUSD * month - state.setupCostUSD
-    }));
-    return { ...t, recoveredAnnualUSD, recoveredMonthlyUSD, monthlyNetUSD, net12USD, totalInvestmentUSD, roiPercent, paybackMonths, months };
+    const monthlyPreTaxNetUSD = recoveredMonthlyUSD - monthlyToolCostUSD;
+    const monthlyAfterTaxNetUSD = recoveredMonthlyUSD * (1 - taxRate) - monthlyToolCostUSD;
+    const totalInvestmentUSD = setupCostUSD + monthlyToolCostUSD * 12;
+    const months = [];
+    let cumulativeStatus = 0, cumulativeRecovered = 0, cumulativeLowRecovered = 0, cumulativeHighRecovered = 0;
+    for (let i = 0; i < 12; i++) {
+      const month = i + 1;
+      const season = seasonalMultiplier(i, seasonalVariancePct);
+      const statusQuoMonthUSD = t.annualCostUSD / 12 * season;
+      const recoveredMonthUSD = recoveredMonthlyUSD * season;
+      cumulativeStatus += statusQuoMonthUSD;
+      cumulativeRecovered += recoveredMonthUSD;
+      cumulativeLowRecovered += recoveredMonthUSD * (1 - seasonalVariancePct / 100);
+      cumulativeHighRecovered += recoveredMonthUSD * (1 + seasonalVariancePct / 100);
+      const totalRunCost = setupCostUSD + monthlyToolCostUSD * month;
+      months.push({
+        month, seasonalFactor: season, statusQuoUSD: cumulativeStatus,
+        recoveredUSD: cumulativeRecovered,
+        preTaxNetUSD: cumulativeRecovered - totalRunCost,
+        afterTaxNetUSD: cumulativeRecovered * (1 - taxRate) - totalRunCost,
+        lowAfterTaxUSD: cumulativeLowRecovered * (1 - taxRate) - totalRunCost,
+        highAfterTaxUSD: cumulativeHighRecovered * (1 - taxRate) - totalRunCost,
+        toolCostUSD: monthlyToolCostUSD * month
+      });
+    }
+    const preTaxNet12USD = recoveredAnnualUSD - setupCostUSD - monthlyToolCostUSD * 12;
+    const afterTaxNet12USD = recoveredAnnualUSD * (1 - taxRate) - setupCostUSD - monthlyToolCostUSD * 12;
+    const preTaxRoiPercent = totalInvestmentUSD > 0 ? preTaxNet12USD / totalInvestmentUSD * 100 : (recoveredAnnualUSD > 0 ? Infinity : null);
+    const afterTaxRoiPercent = totalInvestmentUSD > 0 ? afterTaxNet12USD / totalInvestmentUSD * 100 : (recoveredAnnualUSD > 0 ? Infinity : null);
+    let paybackMonths = null, running = -setupCostUSD;
+    for (let i = 0; i < 240; i++) {
+      const factor = seasonalMultiplier(i % 12, seasonalVariancePct);
+      const increment = recoveredMonthlyUSD * factor * (1 - taxRate) - monthlyToolCostUSD;
+      if (i === 0 && setupCostUSD === 0 && increment >= 0) { paybackMonths = 0; break; }
+      const next = running + increment;
+      if (running < 0 && next >= 0 && increment > 0) {
+        paybackMonths = i + (-running / increment);
+        break;
+      }
+      running = next;
+    }
+    return {
+      ...t, automationRate, mishapBufferPct, seasonalVariancePct, taxRatePct: taxRate * 100,
+      grossPotentialAnnualUSD, recoveredAnnualUSD, recoveredMonthlyUSD,
+      monthlyPreTaxNetUSD, monthlyNetUSD: monthlyAfterTaxNetUSD, monthlyAfterTaxNetUSD,
+      preTaxNet12USD, afterTaxNet12USD, net12USD: afterTaxNet12USD,
+      totalInvestmentUSD, preTaxRoiPercent, roiPercent: afterTaxRoiPercent,
+      paybackMonths, months, setupCostUSD, monthlyToolCostUSD
+    };
   }
 
   function formatPayback(sim) {
-    if (sim.monthlyNetUSD <= 0) return 'Never · adjust sliders';
-    if (state.setupCostUSD <= 0) return 'Immediate · no setup cost';
+    if (sim.paybackMonths === null || !Number.isFinite(sim.paybackMonths)) return 'Never · adjust sliders';
+    if (sim.paybackMonths === 0) return 'Immediate · no setup cost';
     const weeks = sim.paybackMonths * 52 / 12;
     if (weeks < 8) return `Pays back in ${weeks.toFixed(1)} weeks`;
-    return `Pays back in ${(sim.paybackMonths).toFixed(1)} months`;
+    return `Pays back in ${sim.paybackMonths.toFixed(1)} months`;
   }
 
   function paintRange(el) {
@@ -488,8 +629,10 @@
 
   function handleFormRateInput(source) {
     if (source.value === '') return;
+    const raw = Number(source.value);
+    if (!Number.isFinite(raw)) return;
     const fx = currentRate();
-    const amount = clamp(Number(source.value), 10 * fx, 300 * fx);
+    const amount = clamp(raw, 10 * fx, 300 * fx);
     formDraft.hourlyValueUSD = amount / fx;
     if (source.id === 'formRateRange') document.getElementById('formRateNum').value = roundTo(amount, 2);
     else document.getElementById('formRateRange').value = amount;
@@ -516,7 +659,9 @@
     const range = document.getElementById(rangeId), input = document.getElementById(numberId);
     const sync = source => {
       if (input.value === '' && source === input) return;
-      const amount = clamp(Number(source.value), 0, maxUSD * currentRate());
+      const raw = Number(source.value);
+      if (!Number.isFinite(raw)) return;
+      const amount = clamp(raw, 0, maxUSD * currentRate());
       state[key] = amount / currentRate(); state.preset = 'current';
       if (source === range) input.value = roundTo(amount, 2);
       else range.value = amount;
@@ -567,27 +712,88 @@
   }
 
   function updateFormPreview() {
-    const annualUSD = (formDraft.minutesPerDay * formDraft.daysPerWeek / 60) * WEEKS_PER_YEAR * formDraft.hourlyValueUSD;
+    const annualUSD = (formDraft.minutesPerDay * formDraft.daysPerWeek / 60) * WEEKS_PER_YEAR * formDraft.hourlyValueUSD * (1 + state.payrollBurdenPct / 100);
     document.getElementById('formPreview').innerHTML = `${esc(money(annualUSD))} <span class="text-[10px] font-bold text-slate-500">/ yr</span>`;
+  }
+
+  function syncTuningControls() {
+    const values = [
+      ['automationRate', state.automationRate], ['bufferRange', state.mishapBufferPct], ['seasonalRange', state.seasonalVariancePct],
+      ['payrollRange', state.payrollBurdenPct], ['taxRange', state.corporateTaxPct]
+    ];
+    values.forEach(([id, value]) => { const el = document.getElementById(id); el.value = value; paintRange(el); });
+    document.getElementById('payrollNum').value = state.payrollBurdenPct;
+    document.getElementById('taxNum').value = state.corporateTaxPct;
+    document.getElementById('coupledToggle').checked = state.coupledDynamics;
+  }
+
+  function bindPercentControl(rangeId, numberId, key, min, max, step, isTax = false) {
+    const range = document.getElementById(rangeId), input = document.getElementById(numberId);
+    const sync = (source, commit = false) => {
+      if (source.value === '') return;
+      const raw = Number(source.value);
+      if (!Number.isFinite(raw)) return;
+      const normalized = clamp(roundTo(Math.round(raw / step) * step, 2), min, max);
+      state[key] = normalized;
+      if (source === range) input.value = normalized;
+      else range.value = normalized;
+      if (commit && source === input) input.value = normalized;
+      paintRange(range);
+      state.preset = 'current';
+      if (isTax) state.taxOverride = true;
+      if (key === 'payrollBurdenPct') document.getElementById('payrollLabel').textContent = pctExact(normalized);
+      if (key === 'corporateTaxPct') document.getElementById('taxLabel').textContent = pctExact(normalized);
+      if (isTax) document.getElementById('taxRegionLabel').textContent = `Custom override · ${TAX_PRESETS[state.currency].region}`;
+      saveState(); renderAll();
+    };
+    range.addEventListener('input', () => sync(range, true));
+    if (input) {
+      input.addEventListener('input', () => sync(input, false));
+      input.addEventListener('change', () => sync(input, true));
+    }
   }
 
   function bindHeaderControls() {
     document.getElementById('currencySelect').addEventListener('change', event => {
-      state.currency = validCurrency(event.target.value); saveState(); syncFormRateCurrency(); syncBudgetCurrency(); updateFxNote(); updateFormPreview(); renderAll();
-      showToast(`Display currency: ${state.currency}`);
+      state.currency = validCurrency(event.target.value);
+      if (!state.taxOverride) {
+        state.payrollBurdenPct = TAX_PRESETS[state.currency].payrollBurdenPct;
+        state.corporateTaxPct = TAX_PRESETS[state.currency].corporateTaxPct;
+      }
+      saveState(); syncFormRateCurrency(); syncBudgetCurrency(); syncTuningControls(); updateFxNote(); updateFormPreview(); renderAll();
+      showToast(`Currency and ${TAX_PRESETS[state.currency].region} tax defaults applied`);
     });
     document.getElementById('presetSelect').addEventListener('change', event => loadPreset(event.target.value));
     document.getElementById('shareButton').addEventListener('click', shareState);
     document.getElementById('reportButton').addEventListener('click', openReport);
     document.getElementById('exportButton').addEventListener('click', exportCSV);
     document.getElementById('resetButton').addEventListener('click', resetDemo);
+    document.getElementById('saveAuditButton').addEventListener('click', () => openSavedAudits(true));
+    document.getElementById('auditsButton').addEventListener('click', () => openSavedAudits(false));
     document.getElementById('sortSelect').addEventListener('change', () => { renderTasks(); renderBottleneckChart(); });
     document.getElementById('automationRate').addEventListener('input', event => {
-      state.automationRate = clamp(Number(event.target.value), 10, 100); state.preset = 'current';
+      const value = Number(event.target.value); if (!Number.isFinite(value)) return;
+      state.automationRate = clamp(value, 10, 90); state.preset = 'current';
       document.getElementById('automationRateLabel').textContent = pct(state.automationRate);
-      saveState(); renderDashboard(); renderROI();
+      saveState(); renderAll();
     });
-    document.getElementById('automationRate').addEventListener('change', () => renderAll());
+    document.getElementById('bufferRange').addEventListener('input', event => {
+      const value = Number(event.target.value); if (!Number.isFinite(value)) return;
+      state.mishapBufferPct = clamp(value, 0, 40); state.preset = 'current';
+      document.getElementById('bufferLabel').textContent = pct(state.mishapBufferPct); saveState(); renderAll();
+    });
+    document.getElementById('seasonalRange').addEventListener('input', event => {
+      const value = Number(event.target.value); if (!Number.isFinite(value)) return;
+      state.seasonalVariancePct = clamp(value, 0, 40); state.preset = 'current';
+      document.getElementById('seasonalLabel').textContent = pct(state.seasonalVariancePct); saveState(); renderAll();
+    });
+    bindPercentControl('payrollRange', 'payrollNum', 'payrollBurdenPct', 0, 50, 0.1, true);
+    bindPercentControl('taxRange', 'taxNum', 'corporateTaxPct', 0, 50, 0.1, true);
+    document.getElementById('taxPresetButton').addEventListener('click', () => {
+      state.payrollBurdenPct = TAX_PRESETS[state.currency].payrollBurdenPct; state.corporateTaxPct = TAX_PRESETS[state.currency].corporateTaxPct; state.taxOverride = false;
+      syncTuningControls(); saveState(); renderAll(); showToast(`${TAX_PRESETS[state.currency].region} tax defaults restored`);
+    });
+    document.getElementById('coupledToggle').addEventListener('change', event => { state.coupledDynamics = Boolean(event.target.checked); saveState(); renderLiveAfterTaskEdit(); showToast(state.coupledDynamics ? 'Coupled category dynamics enabled' : 'Coupled category dynamics disabled'); });
     bindBudgetControl('setupRange', 'setupNum', 'setupCostUSD', 100000);
     bindBudgetControl('monthlyRange', 'monthlyNum', 'monthlyToolCostUSD', 10000);
     document.getElementById('printReportButton').addEventListener('click', printReport);
@@ -603,26 +809,37 @@
     state.setupCostUSD = preset.setupCostUSD; state.monthlyToolCostUSD = preset.monthlyToolCostUSD; state.automationRate = preset.automationRate;
     document.getElementById('automationRate').value = state.automationRate;
     document.getElementById('automationRateLabel').textContent = pct(state.automationRate);
-    saveState(); syncBudgetCurrency(); renderAll();
+    saveState(); syncBudgetCurrency(); syncTuningControls(); renderAll();
     showToast(`${preset.label} preset loaded`);
   }
 
   /* ------------------------------- Rendering ------------------------------ */
   function renderDashboard() {
-    const t = totals();
+    const t = totals(), sim = simulation();
     document.getElementById('kpiWeekly').innerHTML = `${number(t.weeklyHours, 1)} <span class="text-xs font-bold text-slate-400">hrs/wk</span>`;
     document.getElementById('kpiAnnualHours').innerHTML = `${Math.round(t.annualHours).toLocaleString(locale())} <span class="text-xs font-bold text-slate-400">hrs/yr</span>`;
     document.getElementById('kpiWorkDays').textContent = `≈ ${Math.round(t.annualHours / HOURS_PER_WORKDAY).toLocaleString(locale())} full work days`;
     document.getElementById('kpiAnnualCost').textContent = money(t.annualCostUSD);
-    document.getElementById('kpiWeeklyCost').textContent = `${money(t.weeklyCostUSD)} / week burned`;
-    document.getElementById('kpiRecoverable').textContent = money(t.annualCostUSD * state.automationRate / 100);
-    document.getElementById('kpiRecoveryRate').textContent = `At ${pct(state.automationRate)} automation efficiency`;
+    document.getElementById('kpiWeeklyCost').textContent = `${money(t.weeklyCostUSD)} / week · fully loaded`;
+    document.getElementById('kpiRecoverable').textContent = money(sim.recoveredAnnualUSD);
+    document.getElementById('kpiRecoveryRate').textContent = `${pct(sim.automationRate)} × (1 − ${pct(sim.mishapBufferPct)} friction)`;
+    document.getElementById('kpiPreTaxNet').textContent = money(sim.preTaxNet12USD);
+    document.getElementById('kpiPreTaxNet').className = `financial mt-3 text-xl font-black tabular-nums sm:text-2xl ${sim.preTaxNet12USD >= 0 ? 'text-white' : 'text-rose-300'}`;
+    document.getElementById('kpiAfterTaxNet').textContent = money(sim.afterTaxNet12USD);
+    document.getElementById('kpiAfterTaxNet').className = `financial mt-3 text-xl font-black tabular-nums sm:text-2xl ${sim.afterTaxNet12USD >= 0 ? 'text-emerald-300' : 'text-rose-300'}`;
+    document.getElementById('taxKpiNote').textContent = `${pct(state.corporateTaxPct)} tax · ${money(state.setupCostUSD)} setup included`;
     document.getElementById('kpiTaskCount').textContent = `${state.tasks.length} ${state.tasks.length === 1 ? 'task' : 'tasks'}`;
     document.getElementById('taskCountBadge').textContent = state.tasks.length;
     document.getElementById('currencySelect').value = state.currency;
     document.getElementById('presetSelect').value = PRESETS[state.preset] ? state.preset : 'current';
     document.getElementById('automationRate').value = state.automationRate;
     document.getElementById('automationRateLabel').textContent = pct(state.automationRate);
+    document.getElementById('bufferLabel').textContent = pct(state.mishapBufferPct);
+    document.getElementById('seasonalLabel').textContent = pct(state.seasonalVariancePct);
+    document.getElementById('payrollLabel').textContent = pctExact(state.payrollBurdenPct);
+    document.getElementById('taxLabel').textContent = pctExact(state.corporateTaxPct);
+    document.getElementById('taxRegionLabel').textContent = state.taxOverride ? `Custom override · ${TAX_PRESETS[state.currency].region}` : `${TAX_PRESETS[state.currency].region} preset`;
+    document.getElementById('coupledToggle').checked = state.coupledDynamics;
   }
 
   function sortedTasks() {
@@ -663,7 +880,7 @@
           indexAxis: 'y', responsive: true, maintainAspectRatio: false, animation: { duration: 260 },
           plugins: { legend: { display: false }, tooltip: { backgroundColor: '#0b1220', borderColor: 'rgba(148,163,184,.24)', borderWidth: 1, titleColor: '#fff', bodyColor: '#cbd5e1', padding: 11, cornerRadius: 10,
             callbacks: { label: context => { const task = bottleneckChart?.$tasks?.[context.dataIndex]; if (!task) return formatSelected(context.raw, 0); const c = taskMath(task); return [` Annual cost: ${money(c.annualCostUSD)}`, ` Weekly effort: ${number(c.weeklyHours, 1)} hrs`, ` Annual hours: ${Math.round(c.annualHours).toLocaleString(locale())}`]; } } } },
-          scales: { x: { grid: { color: 'rgba(148,163,184,.08)' }, border: { display: false }, ticks: { color: '#94a3b8', font: { size: 10 }, callback: value => formatSelected(value, 0) } }, y: { grid: { display: false }, border: { display: false }, ticks: { color: '#e2e8f0', font: { size: 11, weight: '600' } } } }
+          scales: { x: { grid: { color: 'rgba(148,163,184,.08)' }, border: { display: false }, ticks: { color: '#94a3b8', font: { family: 'IBM Plex Mono', size: 10 }, callback: value => formatSelected(value, 0) } }, y: { grid: { display: false }, border: { display: false }, ticks: { color: '#e2e8f0', font: { family: 'Inter', size: 11, weight: '600' } } } }
         }
       });
     } else {
@@ -676,55 +893,84 @@
     const sim = simulation();
     const badge = document.getElementById('paybackBadge');
     badge.textContent = formatPayback(sim);
-    badge.className = `text-sm font-black ${sim.monthlyNetUSD > 0 ? 'text-emerald-200' : 'text-amber-200'}`;
+    badge.className = `financial text-sm font-black ${sim.monthlyAfterTaxNetUSD > 0 ? 'text-emerald-200' : 'text-amber-200'}`;
     document.getElementById('roiChartCurrency').textContent = state.currency;
-    document.getElementById('netValue12').textContent = money(sim.net12USD);
-    document.getElementById('netValue12').className = `mt-1 text-sm font-black ${sim.net12USD >= 0 ? 'text-emerald-300' : 'text-rose-300'}`;
+    document.getElementById('preTaxValue12').textContent = money(sim.preTaxNet12USD);
+    document.getElementById('preTaxValue12').className = `financial mt-1 text-xs font-black ${sim.preTaxNet12USD >= 0 ? 'text-white' : 'text-rose-300'}`;
+    document.getElementById('netValue12').textContent = money(sim.afterTaxNet12USD);
+    document.getElementById('netValue12').className = `financial mt-1 text-xs font-black ${sim.afterTaxNet12USD >= 0 ? 'text-emerald-300' : 'text-rose-300'}`;
     document.getElementById('roiPercent12').textContent = sim.roiPercent === null ? '—' : sim.roiPercent === Infinity ? 'No spend' : `${sim.roiPercent >= 0 ? '+' : ''}${sim.roiPercent.toFixed(0)}%`;
-    document.getElementById('roiPercent12').className = `mt-1 text-sm font-black ${sim.roiPercent === null || sim.roiPercent >= 0 ? 'text-emerald-300' : 'text-rose-300'}`;
-    document.getElementById('roiTableBody').innerHTML = sim.months.map(row => `<tr class="text-slate-300 hover:bg-white/[.025]"><td class="px-3 py-2.5 font-bold text-slate-400">M${row.month}</td><td class="px-3 py-2.5 text-right font-semibold">${esc(money(row.statusQuoUSD))}</td><td class="px-3 py-2.5 text-right font-black ${row.netSavingsUSD >= 0 ? 'text-emerald-300' : 'text-rose-300'}">${esc(money(row.netSavingsUSD))}</td></tr>`).join('');
+    document.getElementById('roiPercent12').className = `financial mt-1 text-xs font-black ${sim.roiPercent === null || sim.roiPercent >= 0 ? 'text-emerald-300' : 'text-rose-300'}`;
+    document.getElementById('roiTableBody').innerHTML = sim.months.map(row => `<tr class="text-slate-300 hover:bg-white/[.025]"><td class="px-3 py-2.5 font-bold text-slate-400">M${row.month}</td><td class="financial px-3 py-2.5 text-right font-semibold">${esc(money(row.statusQuoUSD))}</td><td class="financial px-3 py-2.5 text-right font-semibold ${row.preTaxNetUSD >= 0 ? 'text-slate-200' : 'text-rose-300'}">${esc(money(row.preTaxNetUSD))}</td><td class="financial px-3 py-2.5 text-right font-black ${row.afterTaxNetUSD >= 0 ? 'text-emerald-300' : 'text-rose-300'}">${esc(money(row.afterTaxNetUSD))}</td></tr>`).join('');
+    renderScenarioTable();
     renderROIChart(sim);
   }
 
+  function scenarioModels() {
+    return [
+      { label: 'Conservative', style: 'text-amber-300', overrides: { automationRate: clamp(state.automationRate - 15, 10, 90), mishapBufferPct: clamp(state.mishapBufferPct + 10, 0, 40), setupCostUSD: state.setupCostUSD * 1.2, monthlyToolCostUSD: state.monthlyToolCostUSD * 1.2 } },
+      { label: 'Base case · live inputs', style: 'text-cyan-300', overrides: {} },
+      { label: 'Upside', style: 'text-emerald-300', overrides: { automationRate: clamp(state.automationRate + 10, 10, 90), mishapBufferPct: clamp(state.mishapBufferPct - 5, 0, 40), setupCostUSD: state.setupCostUSD * 0.9, monthlyToolCostUSD: state.monthlyToolCostUSD * 0.9 } }
+    ];
+  }
+
+  function renderScenarioTable() {
+    const body = document.getElementById('scenarioTableBody');
+    body.innerHTML = scenarioModels().map(model => {
+      const sim = simulation(model.overrides);
+      const effective = sim.automationRate * (1 - sim.mishapBufferPct / 100);
+      return `<tr class="text-slate-300 hover:bg-white/[.025]"><td class="px-3 py-3 font-black ${model.style}">${esc(model.label)}</td><td class="financial px-3 py-3 text-right">${effective.toFixed(1)}%</td><td class="financial px-3 py-3 text-right">${sim.mishapBufferPct}%</td><td class="financial px-3 py-3 text-right">${esc(money(sim.setupCostUSD))}</td><td class="financial px-3 py-3 text-right font-bold ${sim.preTaxNet12USD >= 0 ? 'text-slate-200' : 'text-rose-300'}">${esc(money(sim.preTaxNet12USD))}</td><td class="financial px-3 py-3 text-right font-black ${sim.afterTaxNet12USD >= 0 ? 'text-emerald-300' : 'text-rose-300'}">${esc(money(sim.afterTaxNet12USD))}</td><td class="financial px-3 py-3 text-right text-[9px] font-bold">${esc(formatPayback(sim))}</td></tr>`;
+    }).join('');
+  }
+
   function renderROIChart(sim) {
-    const canvas = document.getElementById('roiChart');
-    const fallback = document.getElementById('roiFallback');
-    const empty = document.getElementById('roiChartEmpty');
-    empty.classList.add('hidden'); empty.classList.remove('flex');
-    // Keep the model visible even when the task list is empty: setup/tool outlay can still be inspected.
+    const canvas = document.getElementById('roiChart'), fallback = document.getElementById('roiFallback');
+    document.getElementById('roiChartEmpty').classList.add('hidden');
     const labels = sim.months.map(row => `Month ${row.month}`);
     const status = sim.months.map(row => row.statusQuoUSD * currentRate());
-    const net = sim.months.map(row => row.netSavingsUSD * currentRate());
+    const preTax = sim.months.map(row => row.preTaxNetUSD * currentRate());
+    const afterTax = sim.months.map(row => row.afterTaxNetUSD * currentRate());
+    const lowBand = sim.months.map(row => row.lowAfterTaxUSD * currentRate());
+    const highBand = sim.months.map(row => row.highAfterTaxUSD * currentRate());
     if (typeof Chart === 'undefined') {
       if (roiChart) { roiChart.destroy(); roiChart = null; }
       canvas.classList.add('hidden'); fallback.classList.remove('hidden');
-      const width = 760, height = 280, left = 72, right = 16, top = 18, bottom = 35;
-      const low = Math.min(0, ...status, ...net), high = Math.max(1, ...status, ...net), span = Math.max(1, high - low);
+      const width = 760, height = 280, left = 76, right = 16, top = 18, bottom = 36;
+      const all = [...status, ...preTax, ...afterTax, ...lowBand, ...highBand];
+      const low = Math.min(0, ...all), high = Math.max(1, ...all), span = Math.max(1, high - low);
       const xAt = i => left + i * (width - left - right) / 11;
       const yAt = value => top + (high - value) * (height - top - bottom) / span;
-      const pathFor = values => values.map((value, i) => `${i ? 'L' : 'M'}${xAt(i).toFixed(1)},${yAt(value).toFixed(1)}`).join(' ');
-      const grid = Array.from({ length: 5 }, (_, i) => {
-        const value = high - span * i / 4, y = yAt(value);
-        return `<line x1="${left}" y1="${y}" x2="${width - right}" y2="${y}" stroke="#263244" stroke-width="1"/><text x="${left - 8}" y="${y + 4}" text-anchor="end" fill="#94a3b8" font-size="10">${esc(formatSelected(value, 0))}</text>`;
-      }).join('');
+      const points = values => values.map((value, i) => `${xAt(i).toFixed(1)},${yAt(value).toFixed(1)}`);
+      const pathFor = values => points(values).map((point, i) => `${i ? 'L' : 'M'}${point}`).join(' ');
+      const bandPolygon = [...points(highBand), ...points(lowBand).reverse()].join(' ');
+      const grid = Array.from({ length: 5 }, (_, i) => { const value = high - span * i / 4, y = yAt(value); return `<line x1="${left}" y1="${y}" x2="${width - right}" y2="${y}" stroke="#263244" stroke-width="1"/><text x="${left - 8}" y="${y + 4}" text-anchor="end" fill="#94a3b8" font-size="10">${esc(formatSelected(value, 0))}</text>`; }).join('');
       const xLabels = [0, 2, 5, 8, 11].map(i => `<text x="${xAt(i)}" y="${height - 8}" text-anchor="middle" fill="#94a3b8" font-size="10">M${i + 1}</text>`).join('');
-      fallback.innerHTML = `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="12 month cumulative cost and net savings chart" style="width:100%;height:calc(100% - 22px);overflow:visible;font-family:system-ui,sans-serif">${grid}${xLabels}<path d="${pathFor(status)}" fill="none" stroke="#fb7185" stroke-width="3"/><path d="${pathFor(net)}" fill="none" stroke="#34d399" stroke-width="3"/><circle cx="${xAt(11)}" cy="${yAt(status[11])}" r="4" fill="#fb7185"/><circle cx="${xAt(11)}" cy="${yAt(net[11])}" r="4" fill="#34d399"/></svg><div style="display:flex;justify-content:center;gap:18px;font:600 10px system-ui;color:#cbd5e1"><span><i style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#fb7185;margin-right:6px"></i>Status quo cost</span><span><i style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#34d399;margin-right:6px"></i>Net savings after costs</span></div>`;
+      fallback.innerHTML = `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="Seasonal 12-month status quo, pre-tax, after-tax net, and confidence range" style="width:100%;height:calc(100% - 23px);overflow:visible;font-family:Inter,system-ui,sans-serif;font-variant-numeric:tabular-nums">${grid}${xLabels}<polygon points="${bandPolygon}" fill="rgba(52,211,153,.13)"/><path d="${pathFor(status)}" fill="none" stroke="#fb7185" stroke-width="2.5"/><path d="${pathFor(preTax)}" fill="none" stroke="#a78bfa" stroke-width="2" stroke-dasharray="6 4"/><path d="${pathFor(afterTax)}" fill="none" stroke="#34d399" stroke-width="3"/><circle cx="${xAt(11)}" cy="${yAt(afterTax[11])}" r="4" fill="#34d399"/></svg><div style="display:flex;justify-content:center;flex-wrap:wrap;gap:12px;font:600 9px Inter,system-ui,sans-serif;color:#cbd5e1"><span><i style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#fb7185;margin-right:5px"></i>Status quo</span><span><i style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#a78bfa;margin-right:5px"></i>Pre-tax net</span><span><i style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#34d399;margin-right:5px"></i>After-tax net · shaded confidence range</span></div>`;
       return;
     }
     canvas.classList.remove('hidden'); fallback.classList.add('hidden');
+    const datasets = [
+      { label: 'Cumulative status quo cost', data: status, borderColor: '#fb7185', backgroundColor: 'rgba(251,113,133,.04)', fill: false, tension: .32, pointRadius: 2, borderWidth: 2.2 },
+      { label: 'Cumulative net impact · pre-tax', data: preTax, borderColor: '#a78bfa', backgroundColor: 'transparent', fill: false, borderDash: [6, 4], tension: .32, pointRadius: 2, borderWidth: 1.8 },
+      { label: 'After-tax confidence low', data: lowBand, borderColor: 'rgba(52,211,153,0)', backgroundColor: 'rgba(52,211,153,.13)', fill: false, tension: .32, pointRadius: 0, borderWidth: 0 },
+      { label: 'After-tax confidence high', data: highBand, borderColor: 'rgba(52,211,153,0)', backgroundColor: 'rgba(52,211,153,.13)', fill: '-1', tension: .32, pointRadius: 0, borderWidth: 0 },
+      { label: 'Cumulative net impact · after-tax', data: afterTax, borderColor: '#34d399', backgroundColor: 'rgba(52,211,153,.06)', fill: false, tension: .32, pointRadius: 3, pointHoverRadius: 5, borderWidth: 2.8 }
+    ];
     if (!roiChart) {
       roiChart = new Chart(canvas.getContext('2d'), {
-        type: 'line', data: { labels, datasets: [
-          { label: 'Cumulative status quo cost', data: status, borderColor: '#fb7185', backgroundColor: 'rgba(251,113,133,.10)', fill: true, tension: .32, pointRadius: 3, pointHoverRadius: 5, borderWidth: 2.5 },
-          { label: 'Cumulative net savings after automation costs', data: net, borderColor: '#34d399', backgroundColor: 'rgba(52,211,153,.08)', fill: false, tension: .32, pointRadius: 3, pointHoverRadius: 5, borderWidth: 2.5 }
-        ] },
-        options: { responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false }, animation: { duration: 260 },
-          plugins: { legend: { position: 'bottom', labels: { color: '#cbd5e1', usePointStyle: true, boxWidth: 7, padding: 16, font: { size: 10, weight: '600' } } }, tooltip: { backgroundColor: '#0b1220', borderColor: 'rgba(148,163,184,.24)', borderWidth: 1, titleColor: '#fff', bodyColor: '#cbd5e1', padding: 11, cornerRadius: 10, callbacks: { label: context => ` ${context.dataset.label}: ${formatSelected(context.raw, 0)}` } } },
-          scales: { x: { grid: { color: 'rgba(148,163,184,.07)' }, border: { display: false }, ticks: { color: '#94a3b8', font: { size: 9 } } }, y: { grid: { color: 'rgba(148,163,184,.07)' }, border: { display: false }, ticks: { color: '#94a3b8', font: { size: 9 }, callback: value => formatSelected(value, 0) } } }
+        type: 'line', data: { labels, datasets },
+        options: { responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false }, animation: { duration: 220 },
+          plugins: {
+            legend: { position: 'bottom', labels: { color: '#cbd5e1', usePointStyle: true, boxWidth: 7, padding: 13, font: { size: 9, weight: '600' }, filter: item => !item.text.includes('confidence') } },
+            tooltip: { backgroundColor: '#0b1220', borderColor: 'rgba(148,163,184,.24)', borderWidth: 1, titleColor: '#fff', bodyColor: '#cbd5e1', padding: 11, cornerRadius: 10, callbacks: { label: context => context.dataset.label.includes('confidence') ? null : ` ${context.dataset.label}: ${formatSelected(context.raw, 0)}` } }
+          },
+          scales: { x: { grid: { color: 'rgba(148,163,184,.07)' }, border: { display: false }, ticks: { color: '#94a3b8', font: { family: 'IBM Plex Mono', size: 9 } } }, y: { grid: { color: 'rgba(148,163,184,.07)' }, border: { display: false }, ticks: { color: '#94a3b8', font: { family: 'IBM Plex Mono', size: 9 }, callback: value => formatSelected(value, 0) } } }
         }
       });
     } else {
-      roiChart.data.labels = labels; roiChart.data.datasets[0].data = status; roiChart.data.datasets[1].data = net; roiChart.update('none');
+      roiChart.data.labels = labels;
+      roiChart.data.datasets.forEach((dataset, index) => { dataset.data = datasets[index].data; });
+      roiChart.update('none');
     }
   }
 
@@ -737,11 +983,46 @@
     const ranked = [...state.tasks].sort((a, b) => taskMath(b).annualCostUSD - taskMath(a).annualCostUSD);
     const top = ranked[0], c = taskMath(top), all = totals();
     const share = all.annualCostUSD ? Math.round(c.annualCostUSD / all.annualCostUSD * 100) : 0;
-    topBox.innerHTML = `<div class="rounded-2xl border border-rose-400/15 bg-gradient-to-br from-rose-500/[.08] to-violet-500/[.07] p-4"><div class="flex items-start justify-between gap-2"><div class="min-w-0"><p class="truncate text-sm font-black text-white" title="${esc(top.name)}">${esc(top.name)}</p><p class="mt-1 text-[10px] font-bold text-slate-500">${esc(top.category)} · ${top.minutesPerDay} min/day × ${top.daysPerWeek} days</p></div><span class="rounded-full border border-rose-400/20 bg-rose-400/10 px-2 py-1 text-[9px] font-black text-rose-300">#1</span></div><p class="mt-4 text-2xl font-black text-white">${esc(money(c.annualCostUSD))}<span class="ml-1 text-[10px] font-bold text-slate-500">/yr</span></p><div class="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-800"><div class="h-full rounded-full bg-gradient-to-r from-rose-400 to-violet-400" style="width:${clamp(share, 2, 100)}%"></div></div><p class="mt-1.5 text-[9px] font-bold text-slate-500">${share}% of tracked inefficiency cost</p><button class="mt-4 w-full rounded-xl bg-white px-3 py-2.5 text-xs font-black text-slate-900 transition hover:bg-slate-200" data-open-blueprint="${esc(top.id)}">Build this automation blueprint →</button></div>`;
+    topBox.innerHTML = `<div class="rounded-2xl border border-rose-400/15 bg-gradient-to-br from-rose-500/[.08] to-violet-500/[.07] p-4"><div class="flex items-start justify-between gap-2"><div class="min-w-0"><p class="truncate text-sm font-black text-white" title="${esc(top.name)}">${esc(top.name)}</p><p class="mono mt-1 text-[10px] font-bold text-slate-500">${esc(top.category)} · ${top.minutesPerDay} min/day × ${top.daysPerWeek} days</p></div><span class="rounded-full border border-rose-400/20 bg-rose-400/10 px-2 py-1 text-[9px] font-black text-rose-300">#1</span></div><p class="mt-4 text-2xl font-black text-white">${esc(money(c.annualCostUSD))}<span class="ml-1 text-[10px] font-bold text-slate-500">/yr</span></p><div class="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-800"><div class="h-full rounded-full bg-gradient-to-r from-rose-400 to-violet-400" style="width:${clamp(share, 2, 100)}%"></div></div><p class="mt-1.5 text-[9px] font-bold text-slate-500">${share}% of tracked inefficiency cost</p><button class="mt-4 w-full rounded-xl bg-white px-3 py-2.5 text-xs font-black text-slate-900 transition hover:bg-slate-200" data-open-blueprint="${esc(top.id)}">Build this automation blueprint →</button></div>`;
     quickWins.innerHTML = ranked.slice(0, 3).map((task, index) => {
-      const math = taskMath(task), recovered = math.weeklyHours * state.automationRate / 100, blueprint = blueprintFor(task);
+      const math = taskMath(task), recovered = math.weeklyHours * state.automationRate / 100 * (1 - state.mishapBufferPct / 100), blueprint = blueprintFor(task);
       return `<li class="flex gap-2.5"><span class="flex h-5 w-5 shrink-0 items-center justify-center rounded-md border border-white/10 bg-white/[.04] text-[9px] font-black text-slate-400">${index + 1}</span><div class="min-w-0"><p class="truncate text-xs font-bold text-slate-200" title="${esc(task.name)}">${esc(task.name)}</p><p class="mt-0.5 text-[10px] text-slate-500">Recover ~${number(recovered, 1)} hrs/wk · ${esc(blueprint.play)}</p></div></li>`;
     }).join('');
+  }
+
+  function feasibilityScore(task) {
+    const math = taskMath(task);
+    const frequency = clamp(task.daysPerWeek / 7 * 25, 0, 25);
+    const effort = clamp(math.annualHours / 260 * 25, 0, 25);
+    const digitalFit = ({ 'Data & Admin': 25, Reporting: 25, 'E-Commerce': 23, 'Customer Support': 23, Communication: 22, Sales: 21, Marketing: 20, Finance: 20, Operations: 20, Meetings: 17, Other: 13 })[task.category] || 13;
+    const judgmentPenalty = /approval|complaint|negotiat|legal|sensitive|strategy|exception/i.test(task.name) ? 12 : 0;
+    const repeatability = clamp(25 - judgmentPenalty, 8, 25);
+    const frictionPenalty = state.mishapBufferPct / 40 * 10;
+    return Math.round(clamp(frequency + effort + digitalFit + repeatability - frictionPenalty, 0, 100));
+  }
+
+  function feasibilityLabel(score) {
+    return score >= 75 ? 'Strong pilot candidate' : score >= 60 ? 'Promising · validate exceptions' : 'Needs process definition';
+  }
+
+  function renderPlanning() {
+    const scored = state.tasks.map(task => ({ task, score: feasibilityScore(task), math: taskMath(task) }));
+    const ordered = [...scored].sort((a, b) => (b.math.annualCostUSD * b.score) - (a.math.annualCostUSD * a.score));
+    const average = scored.length ? Math.round(scored.reduce((sum, item) => sum + item.score, 0) / scored.length) : 0;
+    const summary = document.getElementById('feasibilitySummary'), list = document.getElementById('feasibilityList');
+    if (!scored.length) {
+      summary.innerHTML = '<div class="rounded-2xl border border-white/10 bg-white/[.025] p-4 text-xs text-slate-500">Add workflows to calculate an execution-readiness score.</div>';
+      list.innerHTML = '';
+    } else {
+      summary.innerHTML = `<div class="flex items-center gap-4 rounded-2xl border border-emerald-400/15 bg-emerald-400/[.05] p-4"><div class="mono text-3xl font-black text-emerald-300">${average}<span class="text-sm text-slate-500">/100</span></div><div class="min-w-0 flex-1"><p class="text-xs font-black text-white">Portfolio readiness</p><p class="mt-1 text-[10px] text-slate-500">Mean heuristic score across ${scored.length} ${scored.length === 1 ? 'workflow' : 'workflows'}</p><div class="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-800"><div class="h-full rounded-full bg-gradient-to-r from-emerald-500 to-cyan-400" style="width:${average}%"></div></div></div></div>`;
+      list.innerHTML = ordered.slice(0, 4).map(item => `<div class="flex items-center justify-between gap-2 rounded-xl border border-white/[.07] bg-white/[.02] px-3 py-2"><div class="min-w-0"><p class="truncate text-[10px] font-bold text-slate-300">${esc(item.task.name)}</p><p class="text-[9px] text-slate-600">${esc(feasibilityLabel(item.score))}</p></div><span class="mono shrink-0 text-xs font-bold ${item.score >= 75 ? 'text-emerald-300' : item.score >= 60 ? 'text-amber-300' : 'text-slate-400'}">${item.score}</span></div>`).join('');
+    }
+    const phases = [
+      { title: 'Days 0–30 · Pilot', color: 'border-violet-400/20', note: 'Map the current process, validate data access, build one human-approved pilot, and capture a baseline.', items: ordered.slice(0, 1) },
+      { title: 'Days 31–60 · Integrate', color: 'border-cyan-400/20', note: 'Harden exception handling, connect the system of record, and roll out the next highest-value workflow.', items: ordered.slice(1, 3) },
+      { title: 'Days 61–90 · Optimize', color: 'border-emerald-400/20', note: 'Monitor adoption and error rates, tune prompts/rules, document ownership, and expand only where quality holds.', items: ordered.slice(3, 6) }
+    ];
+    document.getElementById('roadmapContent').innerHTML = phases.map(phase => `<article class="rounded-2xl border ${phase.color} bg-white/[.025] p-4"><p class="text-xs font-black text-white">${phase.title}</p><p class="mt-2 min-h-[48px] text-[10px] leading-4 text-slate-500">${phase.note}</p><ul class="mt-3 space-y-2">${phase.items.length ? phase.items.map(item => `<li class="rounded-lg border border-white/[.06] bg-[#070b14]/50 px-2.5 py-2"><p class="truncate text-[10px] font-bold text-slate-300">${esc(item.task.name)}</p><p class="mt-0.5 text-[9px] text-slate-600">Score ${item.score}/100 · ~${number(item.math.weeklyHours * state.automationRate / 100 * (1 - state.mishapBufferPct / 100), 1)} hrs/wk potential</p></li>`).join('') : `<li class="rounded-lg border border-dashed border-white/10 px-2.5 py-3 text-[9px] text-slate-600">${state.tasks.length ? 'Complete the prior phase and re-rank the backlog.' : 'Add tasks to generate a prioritized plan.'}</li>`}</ul></article>`).join('');
   }
 
   function categoryClass(category) {
@@ -763,12 +1044,13 @@
     const cats = CATEGORY_LIST.map(cat => `<option value="${esc(cat)}" ${task.category === cat ? 'selected' : ''}>${esc(cat)}</option>`).join('');
     const minuteSlider = taskSliderMarkup(task, 'minutesPerDay', 'Minutes / day', 5, 240, 5, 'min/day', task.minutesPerDay);
     const daysSlider = taskSliderMarkup(task, 'daysPerWeek', 'Days / week', 1, 7, 1, 'days/wk', task.daysPerWeek);
-    const rateSlider = taskSliderMarkup(task, 'hourlyValueUSD', 'Hourly value', 10 * fx, 300 * fx, 5 * fx, '/hr', task.hourlyValueUSD, true);
+    const rateSlider = taskSliderMarkup(task, 'hourlyValueUSD', 'Base hourly value', 10 * fx, 300 * fx, 5 * fx, '/hr', task.hourlyValueUSD, true);
     return `<article class="task-card glass flex flex-col rounded-2xl p-4 sm:p-5" data-task-card="${esc(task.id)}">
       <div class="flex items-start gap-2"><div class="min-w-0 flex-1"><label class="sr-only" for="name-${esc(task.id)}">Edit task name</label><input id="name-${esc(task.id)}" class="task-name-input w-full truncate rounded-lg border border-transparent bg-transparent px-1 py-1 text-sm font-black text-white outline-none hover:border-white/10 focus:border-violet-400 focus:bg-[#080e1a]" data-task-name="${esc(task.id)}" maxlength="80" value="${esc(task.name)}" /><select class="task-category mt-1 max-w-full rounded-full border px-2 py-1 text-[9px] font-black outline-none ${categoryClass(task.category)}" data-task-category="${esc(task.id)}">${cats}</select></div><button class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-white/10 text-slate-500 transition hover:border-rose-400/25 hover:bg-rose-400/10 hover:text-rose-300" data-delete-task="${esc(task.id)}" title="Delete task" aria-label="Delete ${esc(task.name)}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M10 11v6m4-6v6M5 7l1 14h12l1-14M9 7V4h6v3"/></svg></button></div>
-      <div class="mt-4 grid grid-cols-3 gap-2 text-center"><div class="rounded-xl border border-white/[.07] bg-white/[.025] px-1 py-2"><p class="text-[8px] font-black uppercase tracking-wider text-slate-600">Weekly</p><p id="week-${esc(task.id)}" class="mt-1 text-xs font-black text-white">${number(c.weeklyHours, 1)} h</p></div><div class="rounded-xl border border-white/[.07] bg-white/[.025] px-1 py-2"><p class="text-[8px] font-black uppercase tracking-wider text-slate-600">Annual</p><p id="hours-${esc(task.id)}" class="mt-1 text-xs font-black text-white">${Math.round(c.annualHours).toLocaleString(locale())} h</p></div><div class="rounded-xl border border-rose-400/10 bg-rose-400/[.045] px-1 py-2"><p class="text-[8px] font-black uppercase tracking-wider text-rose-300/60">Cost / yr</p><p id="cost-${esc(task.id)}" class="mt-1 truncate text-xs font-black text-rose-200">${esc(money(c.annualCostUSD))}</p></div></div>
+      <div class="mt-4 grid grid-cols-3 gap-2 text-center"><div class="rounded-xl border border-white/[.07] bg-white/[.025] px-1 py-2"><p class="text-[8px] font-black uppercase tracking-wider text-slate-600">Weekly</p><p id="week-${esc(task.id)}" class="financial mt-1 text-xs font-black text-white">${number(c.weeklyHours, 1)} h</p></div><div class="rounded-xl border border-white/[.07] bg-white/[.025] px-1 py-2"><p class="text-[8px] font-black uppercase tracking-wider text-slate-600">Annual</p><p id="hours-${esc(task.id)}" class="financial mt-1 text-xs font-black text-white">${Math.round(c.annualHours).toLocaleString(locale())} h</p></div><div class="rounded-xl border border-rose-400/10 bg-rose-400/[.045] px-1 py-2"><p class="text-[8px] font-black uppercase tracking-wider text-rose-300/60">Cost / yr</p><p id="cost-${esc(task.id)}" class="financial mt-1 truncate text-xs font-black text-rose-200">${esc(money(c.annualCostUSD))}</p></div></div>
       <div class="mt-3"><div class="mb-1 flex justify-between text-[9px] font-bold text-slate-600"><span>Share of tracked annual cost</span><span id="share-label-${esc(task.id)}" class="text-slate-300">${share}%</span></div><div class="h-1 overflow-hidden rounded-full bg-slate-800"><div id="share-bar-${esc(task.id)}" class="h-full rounded-full bg-gradient-to-r from-violet-500 to-cyan-400" style="width:${Math.max(share, 2)}%"></div></div></div>
       <div class="mt-4 space-y-3">${minuteSlider}${daysSlider}${rateSlider}</div>
+      <p id="loaded-rate-${esc(task.id)}" class="financial mt-2 text-[9px] font-semibold text-slate-600">Effective loaded rate: ${esc(money(c.loadedHourlyUSD, 2))}/hr (includes payroll burden)</p>
       <button class="gradient-button mt-5 flex w-full items-center justify-center gap-2 rounded-xl py-3 text-xs font-black text-white transition active:scale-[.99]" data-open-blueprint="${esc(task.id)}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m13 2-9 11h7l-1 9 10-12h-7l0-8Z"/></svg>Generate Fix Blueprint</button>
     </article>`;
   }
@@ -801,8 +1083,64 @@
     }));
   }
 
+  function pairedTaskFor(task) {
+    const counterparts = { Sales: 'Marketing', Marketing: 'Sales', Communication: 'Meetings', Meetings: 'Communication', Reporting: 'Data & Admin', 'Data & Admin': 'Reporting', Data: 'Reporting' };
+    const counterpart = counterparts[task.category];
+    if (!counterpart) return null;
+    return state.tasks.find(candidate => candidate.id !== task.id && candidate.category === counterpart) || null;
+  }
+
+  function rebalancePairedTask(task, previousTask) {
+    if (!state.coupledDynamics) return null;
+    const peer = pairedTaskFor(task);
+    if (!peer) return null;
+    const pairCostBefore = taskMath(previousTask).annualCostUSD + taskMath(peer).annualCostUSD;
+    const peerCostBefore = taskMath(peer).annualCostUSD;
+    const newSourceCost = taskMath(task).annualCostUSD;
+    const payrollMultiplier = 1 + state.payrollBurdenPct / 100;
+    const minPeerCost = (5 * 1 / 60) * WEEKS_PER_YEAR * 10 * payrollMultiplier;
+    const maxPeerCost = (240 * 7 / 60) * WEEKS_PER_YEAR * 300 * payrollMultiplier;
+    const targetPeerCost = clamp(pairCostBefore - newSourceCost, minPeerCost, maxPeerCost);
+    const baseline = { ...peer };
+    const idealScale = Math.cbrt(targetPeerCost / Math.max(peerCostBefore, 1));
+    let best = null, bestScore = Infinity;
+    for (let minutesPerDay = 5; minutesPerDay <= 240; minutesPerDay += 5) {
+      for (let daysPerWeek = 1; daysPerWeek <= 7; daysPerWeek += 1) {
+        const annualHours = minutesPerDay * daysPerWeek / 60 * WEEKS_PER_YEAR;
+        const requiredHourlyUSD = targetPeerCost / (annualHours * payrollMultiplier);
+        if (!Number.isFinite(requiredHourlyUSD) || requiredHourlyUSD < 10 || requiredHourlyUSD > 300) continue;
+        const candidate = { minutesPerDay, daysPerWeek, hourlyValueUSD: clamp(roundTo(requiredHourlyUSD, 2), 10, 300) };
+        const scaleMinutes = minutesPerDay / baseline.minutesPerDay;
+        const scaleDays = daysPerWeek / baseline.daysPerWeek;
+        const scaleHourly = candidate.hourlyValueUSD / baseline.hourlyValueUSD;
+        const score = [scaleMinutes, scaleDays, scaleHourly].reduce((sum, scale) => sum + Math.log(scale / idealScale) ** 2, 0);
+        if (score < bestScore) { best = candidate; bestScore = score; }
+      }
+    }
+    if (!best) {
+      const minutesPerDay = clamp(Math.round((baseline.minutesPerDay * idealScale) / 5) * 5, 5, 240);
+      const daysPerWeek = clamp(Math.round(baseline.daysPerWeek * idealScale), 1, 7);
+      const annualHours = minutesPerDay * daysPerWeek / 60 * WEEKS_PER_YEAR;
+      best = { minutesPerDay, daysPerWeek, hourlyValueUSD: clamp(roundTo(targetPeerCost / (annualHours * payrollMultiplier), 2), 10, 300) };
+    }
+    Object.assign(peer, best);
+    return peer.id;
+  }
+
+  function syncTaskCardControls(id) {
+    const task = getTask(id); if (!task) return;
+    ['minutesPerDay', 'daysPerWeek', 'hourlyValueUSD'].forEach(field => {
+      const slider = document.querySelector(`[data-task-slider="${CSS.escape(id)}"][data-field="${field}"]`);
+      const input = document.querySelector(`[data-task-number="${CSS.escape(id)}"][data-field="${field}"]`);
+      const value = field === 'hourlyValueUSD' ? toSelected(task.hourlyValueUSD) : task[field];
+      if (slider) { slider.value = value; paintRange(slider); }
+      if (input) input.value = field === 'hourlyValueUSD' ? inputMoney(task.hourlyValueUSD) : task[field];
+    });
+  }
+
   function updateTaskFromControl(id, field, element, fromSlider) {
     const task = getTask(id); if (!task || element.value === '') return;
+    const previousTask = { ...task };
     let value = Number(element.value);
     if (!Number.isFinite(value)) return;
     if (field === 'hourlyValueUSD') {
@@ -823,11 +1161,14 @@
     }
     const activeSlider = document.querySelector(`[data-task-slider="${CSS.escape(id)}"][data-field="${field}"]`);
     paintRange(activeSlider);
-    state.preset = 'current'; saveState(); renderLiveAfterTaskEdit();
+    state.preset = 'current';
+    const pairedId = rebalancePairedTask(task, previousTask);
+    saveState(); renderLiveAfterTaskEdit(pairedId);
   }
 
-  function renderLiveAfterTaskEdit() {
-    renderDashboard(); renderInsights(); renderBottleneckChart(); renderROI(); updateTaskCardStats();
+  function renderLiveAfterTaskEdit(pairedId = null) {
+    renderDashboard(); renderInsights(); renderBottleneckChart(); renderROI(); renderPlanning(); updateTaskCardStats();
+    if (pairedId) syncTaskCardControls(pairedId);
   }
 
   function updateTaskCardStats() {
@@ -838,6 +1179,8 @@
       if (week) week.textContent = `${number(c.weeklyHours, 1)} h`;
       if (hours) hours.textContent = `${Math.round(c.annualHours).toLocaleString(locale())} h`;
       if (cost) cost.textContent = money(c.annualCostUSD);
+      const loaded = document.getElementById(`loaded-rate-${CSS.escape(task.id)}`);
+      if (loaded) loaded.textContent = `Effective loaded rate: ${money(c.loadedHourlyUSD, 2)}/hr (includes payroll burden)`;
       const shareLabel = document.getElementById(`share-label-${CSS.escape(task.id)}`), shareBar = document.getElementById(`share-bar-${CSS.escape(task.id)}`);
       if (shareLabel) shareLabel.textContent = `${share}%`;
       if (shareBar) shareBar.style.width = `${Math.max(share, 2)}%`;
@@ -845,7 +1188,7 @@
   }
 
   function renderAll() {
-    renderDashboard(); renderROI(); renderBottleneckChart(); renderInsights(); renderTasks();
+    renderDashboard(); renderROI(); renderBottleneckChart(); renderInsights(); renderTasks(); renderPlanning(); updateFormPreview();
   }
 
   /* ------------------------ Tailored automation plans --------------------- */
@@ -864,7 +1207,7 @@
   }
 
   function blueprintFor(task) {
-    const kind = classifyTask(task), math = taskMath(task), recoveredHours = math.weeklyHours * state.automationRate / 100;
+    const kind = classifyTask(task), math = taskMath(task), recoveredHours = math.weeklyHours * state.automationRate / 100 * (1 - state.mishapBufferPct / 100);
     const plans = {
       communication: {
         trigger: 'A new email, message, or approval request arrives', logic: 'Classify intent, urgency, and sentiment; match a vetted response template; route exceptions for human review', action: 'Draft a contextual reply, log the follow-up, and notify the owner only when needed', stack: ['Gmail / Outlook', 'n8n or Make', 'LLM API', 'Slack / task tracker'], play: 'Classify, draft & route', method: 'AI-assisted triage with approval gates'
@@ -898,15 +1241,15 @@
       }
     };
     const plan = plans[kind] || plans.generic;
-    const systemPrompt = `You are a senior workflow automation architect. Design a practical, safe automation blueprint for this real task: "${task.name}" (category: ${task.category}).\n\nCURRENT BASELINE\n- Manual effort: ${task.minutesPerDay} minutes/day, ${task.daysPerWeek} days/week\n- Current capacity consumed: ${number(math.weeklyHours, 2)} hours/week (${Math.round(math.annualHours)} hours/year)\n- Target recovery assumption: ${pct(state.automationRate)} (about ${number(recoveredHours, 2)} hours/week reclaimed)\n\nOBJECTIVE\nReduce repetitive handling while preserving accuracy, privacy, auditability, and a clear human approval path for consequential or low-confidence actions.\n\nDELIVER A BUILD-READY PLAN\n1. Map the workflow as Trigger -> AI / Logic Filter -> Action / Destination.\n2. Recommend a lean tool stack (prefer n8n, Make, or Zapier plus an LLM API only where it adds value).\n3. Specify the exact inputs, output fields, validation rules, and routing conditions for this task.\n4. Include an exception path, duplicate prevention, logging, and a human approval gate. Never invent missing business facts or send external messages without approval.\n5. Give a small pilot plan for the first 5 business days and measurable success criteria (time saved, error rate, and adoption).\n6. Estimate implementation effort and recurring cost separately; state assumptions and unknowns.\n\nReturn concise headings and actionable steps tailored to "${task.name}". Do not give generic automation advice.`;
-    return { ...plan, kind, recoveredHours, annualRecoveredUSD: math.annualCostUSD * state.automationRate / 100, systemPrompt };
+    const systemPrompt = `You are a senior workflow automation architect. Design a practical, safe automation blueprint for this real task: "${task.name}" (category: ${task.category}).\n\nCURRENT BASELINE\n- Manual effort: ${task.minutesPerDay} minutes/day, ${task.daysPerWeek} days/week\n- Current capacity consumed: ${number(math.weeklyHours, 2)} hours/week (${Math.round(math.annualHours)} hours/year)\n- Automation ceiling assumption: ${pct(state.automationRate)} (hard cap 90%)\n- Mishap & friction buffer: ${pct(state.mishapBufferPct)} (about ${number(recoveredHours, 2)} hours/week reclaimed after friction)\n\nOBJECTIVE\nReduce repetitive handling while preserving accuracy, privacy, auditability, and a clear human approval path for consequential or low-confidence actions.\n\nDELIVER A BUILD-READY PLAN\n1. Map the workflow as Trigger -> AI / Logic Filter -> Action / Destination.\n2. Recommend a lean tool stack (prefer n8n, Make, or Zapier plus an LLM API only where it adds value).\n3. Specify the exact inputs, output fields, validation rules, and routing conditions for this task.\n4. Include an exception path, duplicate prevention, logging, and a human approval gate. Never invent missing business facts or send external messages without approval.\n5. Give a small pilot plan for the first 5 business days and measurable success criteria (time saved, error rate, and adoption).\n6. Estimate implementation effort and recurring cost separately; state assumptions and unknowns.\n\nReturn concise headings and actionable steps tailored to "${task.name}". Do not give generic automation advice.`;
+    return { ...plan, kind, recoveredHours, annualRecoveredUSD: math.annualCostUSD * state.automationRate / 100 * (1 - state.mishapBufferPct / 100), systemPrompt };
   }
 
   function openBlueprint(id) {
     const task = getTask(id); if (!task) return;
     focusedBeforeModal = document.activeElement;
     const plan = blueprintFor(task), math = taskMath(task);
-    document.getElementById('blueprintContent').innerHTML = `<div class="sticky top-0 z-10 flex items-start justify-between gap-3 border-b border-white/10 bg-[#0b1220]/95 px-5 py-4 backdrop-blur sm:px-7"><div class="min-w-0"><div class="flex flex-wrap items-center gap-2"><span class="rounded-full border px-2 py-1 text-[9px] font-black uppercase tracking-wider ${categoryClass(task.category)}">${esc(task.category)}</span><span class="text-[9px] font-bold uppercase tracking-[.14em] text-violet-300">Automation blueprint</span></div><h2 id="blueprintTitle" class="mt-2 truncate text-xl font-black text-white sm:text-2xl">${esc(task.name)}</h2><p class="mt-1 text-xs text-slate-500">${task.minutesPerDay} min/day · ${task.daysPerWeek} days/week · ${number(math.weeklyHours, 1)} hrs/week manual</p></div><button data-close-blueprint class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/10 text-slate-400 hover:bg-white/10 hover:text-white" aria-label="Close automation blueprint">✕</button></div>
+    document.getElementById('blueprintContent').innerHTML = `<div class="sticky top-0 z-10 flex items-start justify-between gap-3 border-b border-white/10 bg-[#0b1220]/95 px-5 py-4 backdrop-blur sm:px-7"><div class="min-w-0"><div class="flex flex-wrap items-center gap-2"><span class="rounded-full border px-2 py-1 text-[9px] font-black uppercase tracking-wider ${categoryClass(task.category)}">${esc(task.category)}</span><span class="text-[9px] font-bold uppercase tracking-[.14em] text-violet-300">Automation blueprint</span></div><h2 id="blueprintTitle" class="mt-2 truncate text-xl font-black text-white sm:text-2xl">${esc(task.name)}</h2><p class="mono mt-1 text-xs text-slate-500">${task.minutesPerDay} min/day · ${task.daysPerWeek} days/week · ${number(math.weeklyHours, 1)} hrs/week manual</p></div><button data-close-blueprint class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/10 text-slate-400 hover:bg-white/10 hover:text-white" aria-label="Close automation blueprint">✕</button></div>
       <div class="space-y-5 p-5 sm:p-7"><div class="grid gap-3 sm:grid-cols-3"><div class="rounded-2xl border border-violet-400/20 bg-violet-400/[.07] p-4"><p class="text-[9px] font-black uppercase tracking-wider text-violet-300">Weekly capacity recovered</p><p class="mt-2 text-2xl font-black text-white">${number(plan.recoveredHours, 1)} <span class="text-xs text-slate-400">hrs/wk</span></p></div><div class="rounded-2xl border border-emerald-400/20 bg-emerald-400/[.06] p-4"><p class="text-[9px] font-black uppercase tracking-wider text-emerald-300">Estimated annual value</p><p class="mt-2 text-2xl font-black text-white">${esc(money(plan.annualRecoveredUSD))}</p></div><div class="rounded-2xl border border-cyan-400/20 bg-cyan-400/[.06] p-4"><p class="text-[9px] font-black uppercase tracking-wider text-cyan-300">Recommended method</p><p class="mt-2 text-sm font-black text-white">${esc(plan.method)}</p></div></div>
       <div><div class="mb-3 flex flex-wrap items-end justify-between gap-2"><div><p class="text-[9px] font-black uppercase tracking-[.15em] text-slate-500">Three-node workflow</p><h3 class="mt-1 text-lg font-black text-white">From event to outcome</h3></div><span class="text-[10px] font-bold text-slate-500">Tailored to ${esc(task.name)}</span></div><div class="grid items-stretch gap-2 sm:grid-cols-[1fr_auto_1fr_auto_1fr]"><div class="rounded-2xl border border-violet-400/20 bg-violet-500/[.08] p-4"><span class="mono text-[9px] font-bold uppercase tracking-widest text-violet-300">01 · Trigger</span><p class="mt-2 text-sm font-bold leading-5 text-white">${esc(plan.trigger)}</p></div><div class="pipeline-arrow flex items-center justify-center">→</div><div class="rounded-2xl border border-cyan-400/20 bg-cyan-500/[.07] p-4"><span class="mono text-[9px] font-bold uppercase tracking-widest text-cyan-300">02 · AI / Logic Filter</span><p class="mt-2 text-sm font-bold leading-5 text-white">${esc(plan.logic)}</p></div><div class="pipeline-arrow flex items-center justify-center">→</div><div class="rounded-2xl border border-emerald-400/20 bg-emerald-500/[.07] p-4"><span class="mono text-[9px] font-bold uppercase tracking-widest text-emerald-300">03 · Action / Destination</span><p class="mt-2 text-sm font-bold leading-5 text-white">${esc(plan.action)}</p></div></div></div>
       <div class="grid gap-4 lg:grid-cols-[.8fr_1.2fr]"><div class="rounded-2xl border border-white/10 bg-white/[.025] p-4"><p class="text-[9px] font-black uppercase tracking-[.15em] text-slate-500">Recommended tool stack</p><div class="mt-3 flex flex-wrap gap-2">${plan.stack.map(tool => `<span class="rounded-lg border border-white/10 bg-white/[.04] px-2.5 py-1.5 text-[10px] font-bold text-slate-200">${esc(tool)}</span>`).join('')}</div><div class="mt-4 rounded-xl border border-white/[.07] bg-[#070b14]/60 p-3"><p class="text-[9px] font-black uppercase tracking-wider text-slate-500">First play to test</p><p class="mt-1 text-sm font-extrabold text-white">${esc(plan.play)}</p><p class="mt-1 text-[10px] leading-4 text-slate-500">Start with a human approval gate, measure error rate and handling time, then expand once the pilot is reliable.</p></div></div><div class="rounded-2xl border border-white/10 bg-white/[.025] p-4"><div class="flex flex-wrap items-center justify-between gap-2"><div><p class="text-[9px] font-black uppercase tracking-[.15em] text-slate-500">Ready-to-paste system prompt</p><p class="mt-1 text-[10px] text-slate-500">Specifically engineered for this workflow and baseline.</p></div><button id="copySystemPrompt" class="rounded-lg bg-white px-3 py-2 text-[10px] font-black text-slate-900 transition hover:bg-slate-200">Copy System Prompt</button></div><pre id="systemPromptText" class="scrollbar mt-3 max-h-64 overflow-auto whitespace-pre-wrap rounded-xl border border-white/10 bg-[#070b14] p-3 text-[10px] leading-5 text-slate-300"></pre></div></div>
@@ -918,23 +1261,42 @@
 
   /* ------------------------------ Report ----------------------------------- */
   function openReport() {
-    const sim = simulation(), ranked = [...state.tasks].sort((a, b) => taskMath(b).annualCostUSD - taskMath(a).annualCostUSD);
-    const netClass = sim.net12USD >= 0 ? 'text-emerald-700' : 'text-rose-700';
+    const sim = simulation();
+    const ranked = [...state.tasks].sort((a, b) => taskMath(b).annualCostUSD - taskMath(a).annualCostUSD);
+    const priorities = [...state.tasks].map(task => ({ task, score: feasibilityScore(task), math: taskMath(task) })).sort((a, b) => b.math.annualCostUSD * b.score - a.math.annualCostUSD * a.score);
+    const avgScore = priorities.length ? Math.round(priorities.reduce((sum, item) => sum + item.score, 0) / priorities.length) : 0;
     const date = new Intl.DateTimeFormat('en-GB', { dateStyle: 'long' }).format(new Date());
     const roiText = sim.roiPercent === null ? '—' : sim.roiPercent === Infinity ? 'No spend' : `${sim.roiPercent >= 0 ? '+' : ''}${sim.roiPercent.toFixed(0)}%`;
+    const tone = value => value >= 0 ? 'text-emerald-700' : 'text-rose-700';
     const topRows = ranked.slice(0, 5).map((task, index) => {
-      const math = taskMath(task), plan = blueprintFor(task);
-      return `<tr class="border-t border-slate-200"><td class="px-3 py-2.5 font-black">${index + 1}. ${esc(task.name)}<span class="block text-[9px] font-semibold text-slate-500">${esc(task.category)}</span></td><td class="px-3 py-2.5 text-right">${Math.round(math.annualHours).toLocaleString(locale())} hrs</td><td class="px-3 py-2.5 text-right font-black">${esc(money(math.annualCostUSD))}</td></tr>`;
+      const math = taskMath(task);
+      return `<tr class="border-t border-slate-200"><td class="px-3 py-2.5 font-black">${index + 1}. ${esc(task.name)}<span class="block text-[9px] font-semibold text-slate-500">${esc(task.category)} · feasibility ${feasibilityScore(task)}/100</span></td><td class="financial px-3 py-2.5 text-right">${Math.round(math.annualHours).toLocaleString(locale())} hrs</td><td class="financial px-3 py-2.5 text-right font-black">${esc(money(math.annualCostUSD))}</td></tr>`;
     }).join('');
-    const plays = ranked.slice(0, 3).map((task, index) => {
-      const math = taskMath(task), plan = blueprintFor(task);
-      return `<div class="report-card rounded-xl border border-slate-200 bg-slate-50 p-3"><div class="flex items-start gap-2"><span class="report-badge flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-violet-100 text-[10px] font-black text-violet-800">${index + 1}</span><div><p class="font-black">${esc(task.name)} · ${esc(plan.play)}</p><p class="mt-1 text-[10px] text-slate-600">${esc(plan.method)} · recover ~${number(math.weeklyHours * state.automationRate / 100, 1)} hrs/week · stack: ${esc(plan.stack.slice(0, 3).join(' / '))}</p></div></div></div>`;
+    const plays = priorities.slice(0, 3).map((item, index) => {
+      const plan = blueprintFor(item.task), hours = item.math.weeklyHours * state.automationRate / 100 * (1 - state.mishapBufferPct / 100);
+      return `<div class="report-card rounded-xl border border-slate-200 bg-slate-50 p-3"><div class="flex items-start gap-2"><span class="report-badge flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-violet-100 text-[10px] font-black text-violet-800">${index + 1}</span><div><p class="font-black">${esc(item.task.name)} · ${esc(plan.play)}</p><p class="mt-1 text-[10px] text-slate-600">${esc(plan.method)} · recover ~${number(hours, 1)} hrs/week after friction · feasibility ${item.score}/100 · stack: ${esc(plan.stack.slice(0, 3).join(' / '))}</p></div></div></div>`;
     }).join('');
-    document.getElementById('reportContent').innerHTML = `<div class="mx-auto max-w-4xl"><div class="mb-7 flex flex-wrap items-start justify-between gap-3 border-b-2 border-slate-900 pb-5"><div><p class="text-[9px] font-black uppercase tracking-[.2em] text-violet-700">Confidential · operational planning brief</p><h1 id="reportTitle" class="mt-2 text-3xl font-black tracking-tight">Executive Workflow<br/>Bottleneck &amp; Automation Audit</h1><p class="mt-2 text-xs text-slate-500">Prepared ${esc(date)} · Currency: ${esc(state.currency)} · Industry profile: ${esc(PRESETS[state.preset]?.label || 'Custom / Current')}</p></div><div class="report-card rounded-xl bg-slate-900 px-4 py-3 text-right text-white"><p class="text-[8px] font-black uppercase tracking-widest text-slate-300">12-month net value</p><p class="mt-1 text-xl font-black">${esc(money(sim.net12USD))}</p><p class="text-[10px] text-slate-300">Projected ROI ${esc(roiText)}</p></div></div>
-      <section class="report-section mb-6"><h2 class="mb-3 text-sm font-black uppercase tracking-[.12em]">Executive summary</h2><div class="grid grid-cols-2 gap-2 md:grid-cols-4"><div class="report-card rounded-xl border border-slate-200 bg-slate-50 p-3"><p class="text-[8px] font-black uppercase text-slate-500">Annual hours burned</p><p class="mt-1 text-lg font-black">${Math.round(sim.annualHours).toLocaleString(locale())} hrs</p></div><div class="report-card rounded-xl border border-slate-200 bg-slate-50 p-3"><p class="text-[8px] font-black uppercase text-slate-500">Annual inefficiency cost</p><p class="mt-1 text-lg font-black">${esc(money(sim.annualCostUSD))}</p></div><div class="report-card rounded-xl border border-slate-200 bg-slate-50 p-3"><p class="text-[8px] font-black uppercase text-slate-500">12-mo net value</p><p class="mt-1 text-lg font-black ${netClass}">${esc(money(sim.net12USD))}</p></div><div class="report-card rounded-xl border border-slate-200 bg-slate-50 p-3"><p class="text-[8px] font-black uppercase text-slate-500">Break-even window</p><p class="mt-1 text-sm font-black">${esc(formatPayback(sim))}</p></div></div><p class="mt-3 text-xs leading-5 text-slate-600">At a ${pct(state.automationRate)} recovery assumption, the modeled annual recovered value is <b>${esc(money(sim.recoveredAnnualUSD))}</b>. One-time build cost: <b>${esc(money(state.setupCostUSD))}</b>; monthly automation/tool cost: <b>${esc(money(state.monthlyToolCostUSD))}</b>.</p></section>
-      <section class="report-section mb-6"><h2 class="mb-2 text-sm font-black uppercase tracking-[.12em]">Highest-cost bottlenecks</h2><div class="overflow-hidden rounded-xl border border-slate-200"><table class="w-full border-collapse text-[10px]"><thead class="bg-slate-100 text-[8px] uppercase tracking-wider text-slate-500"><tr><th class="px-3 py-2 text-left">Workflow</th><th class="px-3 py-2 text-right">Annual hours</th><th class="px-3 py-2 text-right">Annual cost (${esc(state.currency)})</th></tr></thead><tbody>${topRows || '<tr><td colspan="3" class="px-3 py-5 text-center text-slate-500">No tasks have been added yet.</td></tr>'}</tbody></table></div></section>
+    const scenarioRows = scenarioModels().map(model => {
+      const scenario = simulation(model.overrides);
+      return `<tr class="border-t border-slate-200"><td class="px-3 py-2 font-black">${esc(model.label)}</td><td class="financial px-3 py-2 text-right">${esc(money(scenario.preTaxNet12USD))}</td><td class="financial px-3 py-2 text-right font-black">${esc(money(scenario.afterTaxNet12USD))}</td><td class="px-3 py-2 text-right">${esc(formatPayback(scenario))}</td></tr>`;
+    }).join('');
+    const roadmapPhases = [
+      { name: 'Days 0–30 · Pilot', items: priorities.slice(0, 1), action: 'Map the current process, confirm access and owners, baseline time/errors, then pilot with human approval.' },
+      { name: 'Days 31–60 · Integrate', items: priorities.slice(1, 3), action: 'Harden exception handling, connect the system of record, and roll out the next high-value workflow.' },
+      { name: 'Days 61–90 · Optimize', items: priorities.slice(3, 6), action: 'Monitor adoption and error rates, tune rules, document operations, and expand only where quality holds.' }
+    ];
+    const roadmapHtml = roadmapPhases.map(phase => `<div class="report-card rounded-xl border border-slate-200 bg-slate-50 p-3"><p class="font-black">${esc(phase.name)}</p><p class="mt-1 text-[9px] leading-4 text-slate-600">${esc(phase.action)}</p><p class="mt-2 text-[9px] font-semibold text-slate-700">${phase.items.length ? phase.items.map(item => `${esc(item.task.name)} (${item.score}/100)`).join(' · ') : state.tasks.length ? 'Re-rank backlog after phase review' : 'Add tasks to prioritize implementation'}</p></div>`).join('');
+    const investmentCard = `<div class="report-card rounded-xl bg-slate-900 px-4 py-3 text-right text-white"><p class="text-[8px] font-black uppercase tracking-widest text-slate-300">12-month after-tax net</p><p class="financial mt-1 text-xl font-black">${esc(money(sim.afterTaxNet12USD))}</p><p class="text-[10px] text-slate-300">After-tax ROI ${esc(roiText)}</p></div>`;
+    document.getElementById('reportContent').innerHTML = `<div class="mx-auto max-w-4xl">
+      <div class="mb-7 flex flex-wrap items-start justify-between gap-3 border-b-2 border-slate-900 pb-5"><div><p class="text-[9px] font-black uppercase tracking-[.2em] text-violet-700">Confidential · operational planning brief</p><h1 id="reportTitle" class="mt-2 text-3xl font-black tracking-tight">Executive Workflow<br/>Bottleneck &amp; Automation Audit</h1><p class="mt-2 text-xs text-slate-500">Prepared ${esc(date)} · Currency: ${esc(state.currency)} · Profile: ${esc(PRESETS[state.preset]?.label || 'Custom / Current')}</p></div>${investmentCard}</div>
+      <section class="report-section mb-6"><h2 class="mb-3 text-sm font-black uppercase tracking-[.12em]">Executive financial summary</h2><div class="grid grid-cols-2 gap-2 md:grid-cols-3 xl:grid-cols-5"><div class="report-card rounded-xl border border-slate-200 bg-slate-50 p-3"><p class="text-[8px] font-black uppercase text-slate-500">Annual hours burned</p><p class="financial mt-1 text-lg font-black">${Math.round(sim.annualHours).toLocaleString(locale())} hrs</p></div><div class="report-card rounded-xl border border-slate-200 bg-slate-50 p-3"><p class="text-[8px] font-black uppercase text-slate-500">Fully-loaded annual cost</p><p class="financial mt-1 text-lg font-black">${esc(money(sim.annualCostUSD))}</p></div><div class="report-card rounded-xl border border-slate-200 bg-slate-50 p-3"><p class="text-[8px] font-black uppercase text-slate-500">12-mo pre-tax net</p><p class="financial mt-1 text-lg font-black ${tone(sim.preTaxNet12USD)}">${esc(money(sim.preTaxNet12USD))}</p></div><div class="report-card rounded-xl border border-slate-200 bg-slate-50 p-3"><p class="text-[8px] font-black uppercase text-slate-500">12-mo after-tax net</p><p class="financial mt-1 text-lg font-black ${tone(sim.afterTaxNet12USD)}">${esc(money(sim.afterTaxNet12USD))}</p></div><div class="report-card rounded-xl border border-slate-200 bg-slate-50 p-3"><p class="text-[8px] font-black uppercase text-slate-500">Break-even</p><p class="financial mt-1 text-sm font-black">${esc(formatPayback(sim))}</p><p class="mt-1 text-[9px] text-slate-500">After tax + monthly tools</p></div></div>
+      <p class="mt-3 text-[10px] leading-5 text-slate-600">Gross capacity value after the ${pctExact(state.mishapBufferPct)} mishap/friction buffer: <b>${esc(money(sim.recoveredAnnualUSD))}</b> per year (${pctExact(sim.automationRate * (1 - sim.mishapBufferPct / 100))} effective recovery). Setup: <b>${esc(money(state.setupCostUSD))}</b>; monthly tools: <b>${esc(money(state.monthlyToolCostUSD))}</b>. Employer payroll burden: <b>${pctExact(state.payrollBurdenPct)}</b>; corporate tax: <b>${pctExact(state.corporateTaxPct)}</b> (${esc(state.taxOverride ? 'custom override' : TAX_PRESETS[state.currency].region + ' preset')}).</p></section>
+      <section class="report-section mb-6"><h2 class="mb-2 text-sm font-black uppercase tracking-[.12em]">Highest-cost bottlenecks</h2><div class="overflow-hidden rounded-xl border border-slate-200"><table class="w-full border-collapse text-[10px]"><thead class="bg-slate-100 text-[8px] uppercase tracking-wider text-slate-500"><tr><th class="px-3 py-2 text-left">Workflow</th><th class="px-3 py-2 text-right">Annual hours</th><th class="px-3 py-2 text-right">Fully-loaded cost (${esc(state.currency)})</th></tr></thead><tbody>${topRows || '<tr><td colspan="3" class="px-3 py-5 text-center text-slate-500">No tasks have been added yet.</td></tr>'}</tbody></table></div></section>
+      <section class="report-section mb-6"><h2 class="mb-2 text-sm font-black uppercase tracking-[.12em]">Scenario analysis · 12-month impact</h2><div class="overflow-hidden rounded-xl border border-slate-200"><table class="w-full border-collapse text-[10px]"><thead class="bg-slate-100 text-[8px] uppercase tracking-wider text-slate-500"><tr><th class="px-3 py-2 text-left">Case</th><th class="px-3 py-2 text-right">Pre-tax net</th><th class="px-3 py-2 text-right">After-tax net</th><th class="px-3 py-2 text-right">Break-even</th></tr></thead><tbody>${scenarioRows}</tbody></table></div></section>
       <section class="report-section mb-6"><h2 class="mb-2 text-sm font-black uppercase tracking-[.12em]">Top automation plays</h2><div class="space-y-2">${plays || '<p class="text-xs text-slate-500">Add tasks to generate tailored automation plays.</p>'}</div></section>
-      <section class="report-section rounded-xl border border-slate-200 bg-slate-50 p-4"><h2 class="text-sm font-black uppercase tracking-[.12em]">Method &amp; assumptions</h2><p class="mt-2 text-[10px] leading-5 text-slate-600">Annual task cost = minutes/day × days/week ÷ 60 × 52 × hourly value. Projected 12-month net value = annual task cost × recovery assumption − one-time setup − 12 × monthly tool cost. ROI = net value ÷ modeled investment. FX conversions use fixed planning estimates (USD base: INR 83.50, EUR 0.92, GBP 0.79), not live exchange data. Results are directional and depend on implementation quality, adoption, and the value of reclaimed time.</p></section><p class="mt-5 border-t border-slate-200 pt-3 text-[9px] text-slate-400">Generated locally by WorkflowROI · No workflow data is uploaded.</p></div>`;
+      <section class="report-section mb-6"><h2 class="mb-2 text-sm font-black uppercase tracking-[.12em]">Feasibility &amp; 30/60/90-day roadmap</h2><p class="mb-2 text-[10px] text-slate-600">Portfolio feasibility heuristic: ${avgScore}/100 · based on recurrence, effort, digital fit, and repeatability.</p><div class="grid gap-2 md:grid-cols-3">${roadmapHtml}</div></section>
+      <section class="report-section rounded-xl border border-slate-200 bg-slate-50 p-4"><h2 class="text-sm font-black uppercase tracking-[.12em]">Method &amp; assumptions</h2><p class="mt-2 text-[10px] leading-5 text-slate-600">Fully-loaded annual labor cost = minutes/day × days/week ÷ 60 × 52 × base hourly value × (1 + employer payroll burden). Recovered capacity = fully-loaded cost × automation efficiency (hard capped at 90%) × (1 − mishap/friction buffer). The default 15% buffer discounts edge cases, downtime, onboarding dips, and rework. Monthly volume follows a 12-month sinusoidal wave using the selected ± variance; the shaded range applies the same variance around recovered value. Pre-tax net = recovered benefit − setup − 12 × tools. After-tax net = recovered benefit × (1 − corporate tax rate) − setup − 12 × tools; no tax shield is assumed for costs. Pairing preserves prior pair cost where bounds allow by choosing partner minutes and days nearest a cube-root scale, then recalculating the partner’s hourly value. Rates are planning assumptions, not tax advice. FX: USD 1; INR 83.50; EUR 0.92; GBP 0.79 (not live).</p></section>
+      <p class="mt-5 border-t border-slate-200 pt-3 text-[9px] text-slate-400">Generated locally by WorkflowROI · No workflow data is uploaded.</p></div>`;
     showModal(document.getElementById('reportModal'));
   }
 
@@ -954,7 +1316,7 @@
   }
 
   async function shareState() {
-    const payload = { version: 2, currency: state.currency, preset: state.preset, setupCostUSD: state.setupCostUSD, monthlyToolCostUSD: state.monthlyToolCostUSD, automationRate: state.automationRate, tasks: state.tasks };
+    const payload = { version: 2, currency: state.currency, preset: state.preset, setupCostUSD: state.setupCostUSD, monthlyToolCostUSD: state.monthlyToolCostUSD, automationRate: state.automationRate, mishapBufferPct: state.mishapBufferPct, seasonalVariancePct: state.seasonalVariancePct, payrollBurdenPct: state.payrollBurdenPct, corporateTaxPct: state.corporateTaxPct, taxOverride: state.taxOverride, coupledDynamics: state.coupledDynamics, tasks: state.tasks };
     const url = new URL(location.href);
     url.hash = `share=${encodeShare(payload)}`;
     history.replaceState(null, '', url.toString());
@@ -962,23 +1324,83 @@
     catch (error) { copyText(url.toString(), 'Shareable audit URL copied'); }
   }
 
+  function loadSavedAudits() {
+    try {
+      const raw = JSON.parse(localStorage.getItem(SAVED_AUDITS_KEY) || '[]');
+      if (!Array.isArray(raw)) return [];
+      return raw.slice(0, 12).filter(item => item && item.snapshot && typeof item.snapshot === 'object').map(item => ({
+        id: /^[a-zA-Z0-9_-]{1,48}$/.test(String(item.id || '')) ? String(item.id) : newId(),
+        name: String(item.name || 'Saved audit').slice(0, 60), savedAt: String(item.savedAt || new Date().toISOString()), snapshot: normalizeState(item.snapshot)
+      }));
+    } catch (error) { return []; }
+  }
+
+  function persistSavedAudits() {
+    try { localStorage.setItem(SAVED_AUDITS_KEY, JSON.stringify(savedAudits.slice(0, 12))); }
+    catch (error) { showToast('Could not save snapshot · browser storage may be full'); }
+  }
+
+  function openSavedAudits(startSave = false) {
+    renderSavedAudits();
+    const input = document.getElementById('auditNameInput');
+    if (startSave) {
+      const stamp = new Intl.DateTimeFormat('en-GB', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date());
+      input.value = `Workflow audit · ${stamp}`;
+    }
+    showModal(document.getElementById('savedAuditsModal'));
+    if (startSave) setTimeout(() => input.focus(), 40);
+  }
+
+  function renderSavedAudits() {
+    const list = document.getElementById('savedAuditsList');
+    document.getElementById('savedAuditCount').textContent = `${savedAudits.length} / 12`;
+    if (!savedAudits.length) {
+      list.innerHTML = '<div class="rounded-xl border border-dashed border-white/10 p-5 text-center text-xs text-slate-600">No saved snapshots yet. Name the current model above and save it.</div>';
+      return;
+    }
+    list.innerHTML = savedAudits.map(item => {
+      const when = new Intl.DateTimeFormat('en-GB', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(item.savedAt));
+      const snapshot = item.snapshot, sim = simulation(snapshot);
+      return `<article class="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/[.025] p-3"><div class="min-w-0"><p class="truncate text-xs font-extrabold text-white">${esc(item.name)}</p><p class="mt-1 text-[9px] text-slate-500">${esc(when)} · ${snapshot.tasks.length} tasks · ${esc(snapshot.currency)} · after-tax 12-mo ${esc(moneyInCurrency(sim.afterTaxNet12USD, snapshot.currency))}</p></div><div class="flex items-center gap-2"><button class="rounded-lg bg-white px-3 py-2 text-[9px] font-black text-slate-900 hover:bg-slate-200" data-restore-audit="${esc(item.id)}">Restore</button><button class="rounded-lg border border-rose-400/20 px-2.5 py-2 text-[9px] font-bold text-rose-300 hover:bg-rose-400/10" data-delete-audit="${esc(item.id)}">Delete</button></div></article>`;
+    }).join('');
+  }
+
+  function saveCurrentAudit(name) {
+    const label = String(name || '').trim().slice(0, 60);
+    if (!label) { showToast('Enter a name for this audit'); return false; }
+    savedAudits.unshift({ id: newId(), name: label, savedAt: new Date().toISOString(), snapshot: JSON.parse(JSON.stringify(state)) });
+    savedAudits = savedAudits.slice(0, 12);
+    persistSavedAudits(); renderSavedAudits(); showToast('Audit snapshot saved on this device');
+    return true;
+  }
+
+  function restoreAudit(id) {
+    const item = savedAudits.find(audit => audit.id === id); if (!item) return;
+    state = normalizeState(item.snapshot); if (location.hash.includes('share=')) history.replaceState(null, '', location.pathname + location.search); saveState(); syncFormRateCurrency(); syncBudgetCurrency(); syncTuningControls(); updateFxNote(); renderAll(); hideModal(document.getElementById('savedAuditsModal'));
+    showToast(`Restored · ${item.name}`);
+  }
+
   function csvCell(value) { return `"${String(value ?? '').replace(/"/g, '""')}"`; }
   function exportCSV() {
+    const sim = simulation();
     const rows = [
       ['Workflow ROI Platform export', new Date().toISOString()],
       ['Selected currency', state.currency],
       ['One-time setup cost', money(state.setupCostUSD, 2)],
       ['Monthly automation/tool cost', money(state.monthlyToolCostUSD, 2)],
-      ['Automation recovery assumption', pct(state.automationRate)],
+      ['Automation ceiling', pct(state.automationRate)], ['Mishap & friction buffer', pct(state.mishapBufferPct)],
+      ['Seasonal / volume variance', `±${state.seasonalVariancePct}%`], ['Employer payroll burden', pctExact(state.payrollBurdenPct)],
+      ['Effective corporate tax rate', pctExact(state.corporateTaxPct)], ['Tax preset', state.taxOverride ? 'Custom override' : TAX_PRESETS[state.currency].region],
+      ['Coupled category dynamics', state.coupledDynamics ? 'On' : 'Off'],
+      ['12-month pre-tax net impact', money(sim.preTaxNet12USD, 2)], ['12-month after-tax net impact', money(sim.afterTaxNet12USD, 2)], ['Break-even', formatPayback(sim)],
       [],
-      ['Task', 'Category', 'Minutes per day', 'Days per week', `Hourly value (${state.currency})`, 'Weekly hours lost', 'Annual hours lost', `Annual cost (${state.currency})`, `Recoverable value / year (${state.currency})`]
+      ['Task', 'Category', 'Minutes per day', 'Days per week', `Base hourly value (${state.currency})`, `Fully-loaded hourly value (${state.currency})`, 'Weekly hours lost', 'Annual hours lost', `Annual fully-loaded cost (${state.currency})`, `Recovered value after friction / year (${state.currency})`, 'Feasibility score / 100']
     ];
     state.tasks.forEach(task => {
-      const c = taskMath(task);
-      rows.push([task.name, task.category, task.minutesPerDay, task.daysPerWeek, money(task.hourlyValueUSD, 2), number(c.weeklyHours, 2), Math.round(c.annualHours), money(c.annualCostUSD, 2), money(c.annualCostUSD * state.automationRate / 100, 2)]);
+      const c = taskMath(task), recovered = c.annualCostUSD * state.automationRate / 100 * (1 - state.mishapBufferPct / 100);
+      rows.push([task.name, task.category, task.minutesPerDay, task.daysPerWeek, money(task.hourlyValueUSD, 2), money(c.loadedHourlyUSD, 2), number(c.weeklyHours, 2), Math.round(c.annualHours), money(c.annualCostUSD, 2), money(recovered, 2), feasibilityScore(task)]);
     });
-    const sim = simulation();
-    rows.push([], ['12-month net value', money(sim.net12USD, 2)], ['12-month projected ROI', sim.roiPercent === null ? '—' : sim.roiPercent === Infinity ? 'No spend' : `${sim.roiPercent.toFixed(1)}%`], ['Break-even', formatPayback(sim)]);
+    rows.push([], ['12-month projected ROI', sim.roiPercent === null ? '—' : sim.roiPercent === Infinity ? 'No spend' : pctExact(sim.roiPercent)]);
     const blob = new Blob([rows.map(row => row.map(csvCell).join(',')).join('\r\n')], { type: 'text/csv;charset=utf-8' });
     const href = URL.createObjectURL(blob), link = document.createElement('a');
     link.href = href; link.download = `workflow-roi-${state.currency.toLowerCase()}-audit.csv`; link.click(); URL.revokeObjectURL(href); showToast('Currency-adjusted CSV exported');
@@ -995,16 +1417,29 @@
   }
 
   /* ------------------------------- Modals --------------------------------- */
-  function showModal(modal) { modal.hidden = false; document.body.classList.add('modal-open'); setTimeout(() => modal.querySelector('[data-close-blueprint], [data-close-report], button')?.focus(), 30); }
+  function showModal(modal) { if (document.querySelector('.modal:not([hidden])') === null) focusedBeforeModal = document.activeElement; modal.hidden = false; document.body.classList.add('modal-open'); setTimeout(() => modal.querySelector('input:not([type="hidden"]), button')?.focus(), 30); }
   function hideModal(modal) { modal.hidden = true; if (document.querySelector('.modal:not([hidden])') === null) document.body.classList.remove('modal-open'); if (focusedBeforeModal?.focus) focusedBeforeModal.focus(); }
   function bindModalEvents() {
-    const blueprint = document.getElementById('blueprintModal'), report = document.getElementById('reportModal');
+    const blueprint = document.getElementById('blueprintModal'), report = document.getElementById('reportModal'), audits = document.getElementById('savedAuditsModal');
     blueprint.addEventListener('click', event => { if (event.target.matches('[data-close-blueprint]')) hideModal(blueprint); });
     report.addEventListener('click', event => { if (event.target.matches('[data-close-report]')) hideModal(report); });
+    audits.addEventListener('click', event => { if (event.target.matches('[data-close-audits]')) hideModal(audits); });
+    document.getElementById('saveAuditForm').addEventListener('submit', event => {
+      event.preventDefault();
+      const input = document.getElementById('auditNameInput');
+      if (saveCurrentAudit(input.value)) { input.value = ''; }
+    });
+    document.getElementById('savedAuditsList').addEventListener('click', event => {
+      const restore = event.target.closest('[data-restore-audit]');
+      if (restore) { restoreAudit(restore.dataset.restoreAudit); return; }
+      const remove = event.target.closest('[data-delete-audit]');
+      if (remove) { savedAudits = savedAudits.filter(item => item.id !== remove.dataset.deleteAudit); persistSavedAudits(); renderSavedAudits(); showToast('Saved snapshot deleted'); }
+    });
     document.addEventListener('keydown', event => {
       if (event.key === 'Escape') {
         if (!blueprint.hidden) hideModal(blueprint);
         if (!report.hidden) hideModal(report);
+        if (!audits.hidden) hideModal(audits);
       }
     });
     document.getElementById('taskGrid').addEventListener('click', event => {
@@ -1026,7 +1461,7 @@
   function resetDemo() {
     state = normalizeState(DEFAULT_STATE); formDraft = { minutesPerDay: 30, daysPerWeek: 5, hourlyValueUSD: 50 };
     if (location.hash.includes('share=')) history.replaceState(null, '', location.pathname + location.search);
-    saveState(); syncFormRateCurrency(); syncBudgetCurrency(); updateFxNote(); renderAll();
+    saveState(); syncFormRateCurrency(); syncBudgetCurrency(); syncTuningControls(); updateFxNote(); renderAll();
     document.getElementById('formMinutesRange').value = formDraft.minutesPerDay; document.getElementById('formMinutesNum').value = formDraft.minutesPerDay; paintRange(document.getElementById('formMinutesRange'));
     document.getElementById('formDaysRange').value = formDraft.daysPerWeek; document.getElementById('formDaysNum').value = formDraft.daysPerWeek; paintRange(document.getElementById('formDaysRange'));
     updateFormPreview(); showToast('Demo audit restored');
@@ -1034,11 +1469,12 @@
 
   /* -------------------------------- Init ---------------------------------- */
   state = loadState();
+  savedAudits = loadSavedAudits();
   document.getElementById('currencySelect').value = state.currency;
   document.getElementById('presetSelect').value = PRESETS[state.preset] ? state.preset : 'current';
   bindForm(); bindHeaderControls();
-  syncBudgetCurrency(); updateFxNote(); saveState(); renderAll();
+  syncBudgetCurrency(); syncTuningControls(); updateFxNote(); saveState(); renderAll();
 })();
 </script>
-</body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a612a8093ef8a740',t:'MTc5NTc5ODQ4Mw=='};var l=window.parent.location,o;try{o=new URL(l.origin).origin}catch(e){try{o=new URL(new URL(l.href).origin).origin}catch(e){o=''}}var u='/cdn-cgi/challenge-platform/scripts/jsd/main.js?ray=a612a8093ef8a740',a=document.createElement('script');a.src=o?new URL(u,o).href:u;document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
