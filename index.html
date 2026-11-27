@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Workflow Bottleneck & ROI Calculator</title>
+<meta name="description" content="Find the repetitive tasks draining your week, quantify the cost, and generate tailored automation fixes — in seconds." />
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  darkMode: 'class',
+  theme: {
+    extend: {
+      fontFamily: { sans: ['Inter','system-ui','sans-serif'], mono: ['JetBrains Mono','monospace'] },
+      colors: {
+        ink: '#070B14',
+        panel: '#0D1424',
+        line: 'rgba(148,163,184,0.14)',
+        mint: '#34D399',
+        violet2: '#8B5CF6',
+        cyan2: '#22D3EE',
+      },
+      boxShadow: {
+        glow: '0 0 0 1px rgba(139,92,246,.25), 0 20px 60px -20px rgba(139,92,246,.45)',
+        card: '0 10px 40px -12px rgba(0,0,0,.6)',
+      }
+    }
+  }
+}
+</script>
+<style>
+  html{scroll-behavior:smooth}
+  body{background:#070B14;color:#E2E8F0;font-family:Inter,system-ui,sans-serif}
+  ::selection{background:#8B5CF6;color:white}
+  .glass{background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.02));border:1px solid rgba(148,163,184,.14);backdrop-filter:blur(12px)}
+  .glass-strong{background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.03));border:1px solid rgba(148,163,184,.18)}
+  .grad-text{background:linear-gradient(90deg,#A78BFA,#22D3EE 55%,#34D399);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .grad-btn{background:linear-gradient(135deg,#7C3AED,#06B6D4)}
+  .grad-btn:hover{filter:brightness(1.12)}
+  input[type=range]{-webkit-appearance:none;appearance:none;height:6px;border-radius:999px;background:linear-gradient(90deg,#7C3AED var(--fill,50%),#1E293B var(--fill,50%));outline:none;cursor:pointer}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:white;border:3px solid #7C3AED;box-shadow:0 2px 10px rgba(0,0,0,.5);cursor:grab}
+  input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:white;border:3px solid #7C3AED;cursor:grab}
+  .fix-panel{max-height:0;overflow:hidden;transition:max-height .5s cubic-bezier(.4,0,.2,1),opacity .4s;opacity:0}
+  .fix-panel.open{max-height:1200px;opacity:1}
+  .task-card{transition:transform .25s,border-color .25s,box-shadow .25s}
+  .task-card:hover{transform:translateY(-3px);border-color:rgba(167,139,250,.35);box-shadow:0 20px 50px -20px rgba(124,58,237,.35)}
+  .kpi-num{font-variant-numeric:tabular-nums}
+  .scrollbar::-webkit-scrollbar{width:6px;height:6px}
+  .scrollbar::-webkit-scrollbar-thumb{background:#334155;border-radius:999px}
+  @keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+  .floaty{animation:floaty 5s ease-in-out infinite}
+  @keyframes pulseDot{0%,100%{opacity:1}50%{opacity:.4}}
+  .live-dot{animation:pulseDot 1.6s infinite}
+  .toast{transform:translateY(20px);opacity:0;transition:all .35s}
+  .toast.show{transform:translateY(0);opacity:1}
+</style>
+</head>
+<body class="min-h-screen antialiased">
+
+<!-- Ambient background -->
+<div class="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+  <div class="absolute -top-40 left-1/2 -translate-x-1/2 w-[900px] h-[500px] rounded-full bg-violet-600/20 blur-[120px]"></div>
+  <div class="absolute top-[40%] -left-40 w-[500px] h-[500px] rounded-full bg-cyan-500/10 blur-[120px]"></div>
+  <div class="absolute bottom-0 right-0 w-[500px] h-[400px] rounded-full bg-emerald-500/10 blur-[120px]"></div>
+  <div class="absolute inset-0 opacity-[0.035]" style="background-image:linear-gradient(rgba(255,255,255,.6) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.6) 1px,transparent 1px);background-size:44px 44px"></div>
+</div>
+
+<!-- Nav -->
+<header class="sticky top-0 z-40 border-b border-white/10 bg-[#070B14]/80 backdrop-blur-xl">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-xl grad-btn flex items-center justify-center shadow-glow floaty">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13L13 2Z" fill="white" stroke="none"/></svg>
+      </div>
+      <div class="leading-tight">
+        <p class="font-extrabold tracking-tight text-white text-[15px]">Workflow<span class="text-violet-400">ROI</span></p>
+        <p class="text-[11px] text-slate-400 font-medium tracking-wide uppercase">Bottleneck Calculator</p>
+      </div>
+      <span class="hidden sm:inline-flex ml-2 items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full bg-emerald-400/10 text-emerald-300 border border-emerald-400/20"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 live-dot"></span> LIVE</span>
+    </div>
+    <div class="flex items-center gap-2">
+      <button onclick="exportCSV()" class="hidden sm:inline-flex items-center gap-2 text-sm font-semibold px-3.5 py-2 rounded-xl border border-white/10 hover:bg-white/5 transition">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 21h16"/></svg> Export CSV
+      </button>
+      <button onclick="resetDemo()" class="text-sm font-semibold px-3.5 py-2 rounded-xl border border-white/10 hover:bg-white/5 transition">Reset demo</button>
+      <a href="https://github.com/gridghostMV3/workflow-roi-calc" target="_blank" rel="noreferrer" class="inline-flex items-center gap-2 text-sm font-bold px-4 py-2 rounded-xl bg-white text-slate-900 hover:bg-slate-200 transition">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.55v-2.15c-3.2.7-3.87-1.36-3.87-1.36-.52-1.33-1.28-1.68-1.28-1.68-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.19 1.76 1.19 1.03 1.75 2.69 1.25 3.35.95.1-.74.4-1.25.72-1.53-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11.1 11.1 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.12 3.05.74.81 1.18 1.83 1.18 3.09 0 4.41-2.69 5.38-5.25 1.66.41 1.29 1.22 1.29 2.46v3.65c0 .3.2.67.8.55A11.51 11.51 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
+
+  <!-- Hero -->
+  <section class="pt-10 pb-8 text-center max-w-3xl mx-auto">
+    <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full glass text-xs font-semibold text-slate-300 mb-5">
+      <span>⚡</span> Find hidden costs. Fix them with automation.
+    </div>
+    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white leading-[1.05]">
+      Workflow Bottleneck<br/>&amp; <span class="grad-text">ROI Calculator</span>
+    </h1>
+    <p class="mt-5 text-slate-400 text-base sm:text-lg leading-relaxed">
+      Add your repetitive tasks, drag the sliders, and instantly see how many hours — and dollars — they cost you every year. Then generate a tailored automation fix for each one.
+    </p>
+    <div class="mt-6 flex flex-wrap justify-center gap-2 text-xs font-semibold">
+      <span class="px-3 py-1.5 rounded-full bg-white/5 border border-white/10">52-week year</span>
+      <span class="px-3 py-1.5 rounded-full bg-white/5 border border-white/10">Live calculations</span>
+      <span class="px-3 py-1.5 rounded-full bg-white/5 border border-white/10">AI + No-code fixes</span>
+      <span class="px-3 py-1.5 rounded-full bg-white/5 border border-white/10">No signup needed</span>
+    </div>
+  </section>
+
+  <!-- Dashboard KPIs -->
+  <section class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div class="glass rounded-2xl p-5 relative overflow-hidden">
+      <div class="absolute -right-6 -top-6 w-24 h-24 bg-violet-500/20 rounded-full blur-2xl"></div>
+      <div class="flex items-center justify-between">
+        <p class="text-xs font-bold tracking-widest uppercase text-slate-400">Weekly Hours Lost</p>
+        <span class="w-8 h-8 rounded-lg bg-violet-500/15 border border-violet-400/20 flex items-center justify-center text-violet-300">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+        </span>
+      </div>
+      <p id="kpiWeekly" class="kpi-num mt-3 text-3xl sm:text-4xl font-black text-white">0.0<span class="text-base font-bold text-slate-400 ml-1">hrs/wk</span></p>
+      <p class="mt-1 text-xs text-slate-400">Across <span id="kpiTasks" class="text-slate-200 font-bold">0 tasks</span></p>
+    </div>
+
+    <div class="glass rounded-2xl p-5 relative overflow-hidden">
+      <div class="absolute -right-6 -top-6 w-24 h-24 bg-cyan-500/20 rounded-full blur-2xl"></div>
+      <div class="flex items-center justify-between">
+        <p class="text-xs font-bold tracking-widest uppercase text-slate-400">Annual Hours Lost</p>
+        <span class="w-8 h-8 rounded-lg bg-cyan-500/15 border border-cyan-400/20 flex items-center justify-center text-cyan-300">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 9h18"/></svg>
+        </span>
+      </div>
+      <p id="kpiAnnual" class="kpi-num mt-3 text-3xl sm:text-4xl font-black text-white">0<span class="text-base font-bold text-slate-400 ml-1">hrs/yr</span></p>
+      <p class="mt-1 text-xs text-slate-400">≈ <span id="kpiDays" class="text-slate-200 font-bold">0 full days</span> of work</p>
+    </div>
+
+    <div class="glass rounded-2xl p-5 relative overflow-hidden border-rose-400/20">
+      <div class="absolute -right-6 -top-6 w-24 h-24 bg-rose-500/20 rounded-full blur-2xl"></div>
+      <div class="flex items-center justify-between">
+        <p class="text-xs font-bold tracking-widest uppercase text-slate-400">Annual Cost of Inefficiency</p>
+        <span class="w-8 h-8 rounded-lg bg-rose-500/15 border border-rose-400/20 flex items-center justify-center text-rose-300">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 6.5c0-1.9-2.2-3-5-3s-5 1.1-5 3 1.6 2.6 5 3.2 5 1.4 5 3.3-2.2 3-5 3-5-1.1-5-3"/></svg>
+        </span>
+      </div>
+      <p id="kpiCost" class="kpi-num mt-3 text-3xl sm:text-4xl font-black text-white">$0</p>
+      <p class="mt-1 text-xs text-slate-400"><span id="kpiWeeklyCost" class="text-rose-300 font-bold">$0/wk</span> burned on repetition</p>
+    </div>
+
+    <div class="glass rounded-2xl p-5 relative overflow-hidden border-emerald-400/20">
+      <div class="absolute -right-6 -top-6 w-24 h-24 bg-emerald-500/20 rounded-full blur-2xl"></div>
+      <div class="flex items-center justify-between">
+        <p class="text-xs font-bold tracking-widest uppercase text-slate-400">Recoverable @ 70%</p>
+        <span class="w-8 h-8 rounded-lg bg-emerald-500/15 border border-emerald-400/20 flex items-center justify-center text-emerald-300">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg>
+        </span>
+      </div>
+      <p id="kpiRecoverable" class="kpi-num mt-3 text-3xl sm:text-4xl font-black text-emerald-300">$0</p>
+      <p class="mt-1 text-xs text-slate-400">If you automate 70% of this work</p>
+    </div>
+  </section>
+
+  <!-- Chart + Insights -->
+  <section class="grid lg:grid-cols-3 gap-4 mb-6">
+    <div class="lg:col-span-2 glass rounded-2xl p-5 sm:p-6">
+      <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+        <div>
+          <h2 class="font-extrabold text-white text-lg tracking-tight">Bottleneck Comparison</h2>
+          <p class="text-xs text-slate-400 mt-0.5">Compare annual cost per task — use the sorter to rank by cost, time, or name.</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <label class="text-xs font-semibold text-slate-400">Sort by</label>
+          <select id="sortSelect" onchange="renderAll()" class="bg-[#0D1424] border border-white/10 rounded-lg text-sm px-3 py-2 outline-none focus:border-violet-400">
+            <option value="cost">Annual cost</option>
+            <option value="hours">Annual hours</option>
+            <option value="name">Name A–Z</option>
+          </select>
+        </div>
+      </div>
+      <div class="relative h-[280px] sm:h-[320px]">
+        <canvas id="bottleneckChart"></canvas>
+        <div id="chartEmpty" class="hidden absolute inset-0 flex flex-col items-center justify-center text-center">
+          <p class="text-4xl mb-2">📭</p>
+          <p class="font-bold text-white">No tasks yet</p>
+          <p class="text-sm text-slate-400">Add a task below to see your bottleneck chart.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="glass rounded-2xl p-5 sm:p-6 flex flex-col">
+      <h3 class="font-extrabold text-white tracking-tight">💡 Top Bottleneck</h3>
+      <div id="topBottleneck" class="mt-4"></div>
+      <div class="mt-5 pt-5 border-t border-white/10">
+        <h4 class="text-xs font-bold tracking-widest uppercase text-slate-400 mb-3">Quick wins</h4>
+        <ul id="quickWins" class="space-y-2.5 text-sm text-slate-300"></ul>
+      </div>
+      <div class="mt-auto pt-5">
+        <div class="rounded-xl bg-gradient-to-br from-violet-600/20 to-cyan-500/10 border border-violet-400/20 p-4">
+          <p class="text-xs font-bold tracking-widest uppercase text-violet-300">Rule of thumb</p>
+          <p class="text-sm text-slate-200 mt-1.5 leading-relaxed">Any task done <b class="text-white">3+ times a week</b> that takes <b class="text-white">15+ minutes</b> is a prime automation candidate.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Add Task -->
+  <section class="glass-strong rounded-2xl p-5 sm:p-6 mb-6 shadow-card">
+    <div class="flex items-center justify-between flex-wrap gap-3 mb-5">
+      <div>
+        <h2 class="font-extrabold text-white text-xl tracking-tight">➕ Add a repetitive task</h2>
+        <p class="text-sm text-slate-400 mt-0.5">Be honest about the minutes — small daily leaks compound fast.</p>
+      </div>
+      <span class="text-xs font-mono px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-slate-300">Saved locally in your browser</span>
+    </div>
+
+    <form id="addForm" class="grid md:grid-cols-2 gap-5">
+      <div class="space-y-4">
+        <div>
+          <label class="text-xs font-bold tracking-widest uppercase text-slate-400">Task name</label>
+          <input id="fName" type="text" required maxlength="60" placeholder="e.g. Email triage & replies" class="mt-2 w-full bg-[#070B14] border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-slate-500 outline-none focus:border-violet-400 focus:ring-2 focus:ring-violet-500/20 transition" />
+        </div>
+        <div>
+          <label class="text-xs font-bold tracking-widest uppercase text-slate-400">Category</label>
+          <select id="fCategory" class="mt-2 w-full bg-[#070B14] border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:border-violet-400">
+            <option>Communication</option><option>Data &amp; Admin</option><option>Reporting</option><option>Meetings</option><option>Marketing</option><option>Finance</option><option>Operations</option><option>Other</option>
+          </select>
+        </div>
+        <div class="rounded-xl bg-white/[0.03] border border-white/10 p-4">
+          <p class="text-xs font-bold tracking-widest uppercase text-slate-400 mb-2">💡 Try an example</p>
+          <div class="flex flex-wrap gap-2">
+            <button type="button" onclick="fillExample('Copy-pasting data between tools',60,5,35,'Data & Admin')" class="text-xs font-semibold px-3 py-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 transition">Data entry</button>
+            <button type="button" onclick="fillExample('Chasing approvals on Slack',20,5,60,'Communication')" class="text-xs font-semibold px-3 py-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 transition">Approvals</button>
+            <button type="button" onclick="fillExample('Building weekly client report',75,2,70,'Reporting')" class="text-xs font-semibold px-3 py-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 transition">Weekly report</button>
+            <button type="button" onclick="fillExample('Scheduling & rescheduling meetings',15,5,50,'Meetings')" class="text-xs font-semibold px-3 py-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 transition">Scheduling</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="space-y-5">
+        <!-- Minutes slider -->
+        <div>
+          <div class="flex items-center justify-between">
+            <label class="text-xs font-bold tracking-widest uppercase text-slate-400">Minutes per day</label>
+            <div class="flex items-center gap-2">
+              <input id="fMinutesNum" type="number" min="5" max="240" value="30" class="w-20 bg-[#070B14] border border-white/10 rounded-lg px-2.5 py-1.5 text-sm font-bold text-white text-center outline-none focus:border-violet-400" />
+              <span class="text-xs text-slate-400 font-semibold">min/day</span>
+            </div>
+          </div>
+          <input id="fMinutes" type="range" min="5" max="240" step="5" value="30" class="w-full mt-3" />
+          <div class="flex justify-between text-[11px] text-slate-500 font-semibold mt-1"><span>5 min</span><span>4 hrs</span></div>
+        </div>
+        <!-- Days slider -->
+        <div>
+          <div class="flex items-center justify-between">
+            <label class="text-xs font-bold tracking-widest uppercase text-slate-400">Days per week</label>
+            <div class="flex items-center gap-2">
+              <input id="fDaysNum" type="number" min="1" max="7" value="5" class="w-16 bg-[#070B14] border border-white/10 rounded-lg px-2.5 py-1.5 text-sm font-bold text-white text-center outline-none focus:border-violet-400" />
+              <span class="text-xs text-slate-400 font-semibold">days/wk</span>
+            </div>
+          </div>
+          <input id="fDays" type="range" min="1" max="7" step="1" value="5" class="w-full mt-3" />
+          <div class="flex justify-between text-[11px] text-slate-500 font-semibold mt-1"><span>1 day</span><span>7 days</span></div>
+        </div>
+        <!-- Hourly value slider -->
+        <div>
+          <div class="flex items-center justify-between">
+            <label class="text-xs font-bold tracking-widest uppercase text-slate-400">Hourly value</label>
+            <div class="flex items-center gap-2">
+              <span class="text-slate-400 font-bold">$</span>
+              <input id="fRateNum" type="number" min="10" max="200" value="50" class="w-20 bg-[#070B14] border border-white/10 rounded-lg px-2.5 py-1.5 text-sm font-bold text-white text-center outline-none focus:border-violet-400" />
+              <span class="text-xs text-slate-400 font-semibold">/hr</span>
+            </div>
+          </div>
+          <input id="fRate" type="range" min="10" max="200" step="5" value="50" class="w-full mt-3" />
+          <div class="flex justify-between text-[11px] text-slate-500 font-semibold mt-1"><span>$10/hr</span><span>$200/hr</span></div>
+        </div>
+
+        <div class="flex items-center gap-3 pt-1">
+          <button type="submit" class="flex-1 grad-btn text-white font-extrabold py-3.5 rounded-xl shadow-glow transition active:scale-[0.98]">Add task &amp; calculate →</button>
+          <div class="hidden sm:block text-right">
+            <p class="text-[11px] text-slate-500 font-semibold uppercase tracking-wider">This task alone costs</p>
+            <p id="formPreview" class="font-black text-white">$6,500<span class="text-xs text-slate-400 font-bold"> /yr</span></p>
+          </div>
+        </div>
+      </div>
+    </form>
+  </section>
+
+  <!-- Tasks -->
+  <section>
+    <div class="flex items-center justify-between flex-wrap gap-3 mb-4">
+      <h2 class="font-extrabold text-white text-xl tracking-tight">Your bottlenecks <span id="taskCountBadge" class="ml-1 text-sm font-bold px-2.5 py-1 rounded-full bg-violet-500/15 text-violet-300 border border-violet-400/20">0</span></h2>
+      <p class="text-xs text-slate-400 font-medium">Drag sliders on any card — everything recalculates live.</p>
+    </div>
+    <div id="taskGrid" class="grid md:grid-cols-2 xl:grid-cols-3 gap-4"></div>
+    <div id="emptyState" class="hidden glass rounded-2xl p-10 text-center">
+      <p class="text-5xl mb-3">🎉</p>
+      <p class="font-extrabold text-white text-lg">No bottlenecks tracked</p>
+      <p class="text-slate-400 text-sm mt-1">Add your first repetitive task above to start finding savings.</p>
+    </div>
+  </section>
+
+  <!-- Methodology -->
+  <section class="mt-10 glass rounded-2xl p-6 sm:p-8">
+    <h3 class="font-extrabold text-white text-lg tracking-tight mb-4">How the math works</h3>
+    <div class="grid sm:grid-cols-3 gap-4 text-sm">
+      <div class="rounded-xl bg-white/[0.03] border border-white/10 p-4">
+        <p class="font-mono text-violet-300 font-bold text-xs mb-2">01 — WEEKLY HOURS</p>
+        <p class="text-slate-300 leading-relaxed"><span class="font-mono text-white">minutes/day × days/week ÷ 60</span><br/>How much of your week this task eats.</p>
+      </div>
+      <div class="rounded-xl bg-white/[0.03] border border-white/10 p-4">
+        <p class="font-mono text-cyan-300 font-bold text-xs mb-2">02 — ANNUAL COST</p>
+        <p class="text-slate-300 leading-relaxed"><span class="font-mono text-white">weekly hours × 52 × $/hr</span><br/>What repetition really costs you per year.</p>
+      </div>
+      <div class="rounded-xl bg-white/[0.03] border border-white/10 p-4">
+        <p class="font-mono text-emerald-300 font-bold text-xs mb-2">03 — RECOVERABLE</p>
+        <p class="text-slate-300 leading-relaxed"><span class="font-mono text-white">annual cost × 70%</span><br/>A conservative estimate of what automation can give back.</p>
+      </div>
+    </div>
+    <p class="text-xs text-slate-500 mt-4">Assumes 52 working weeks. Adjust the 70% assumption to your context — even 40% automation usually pays for itself in weeks.</p>
+  </section>
+
+  <footer class="mt-10 text-center text-xs text-slate-500">
+    <p>Built with Tailwind CSS + Chart.js · Data stays in your browser (localStorage) · <a class="underline hover:text-slate-300" href="https://github.com/gridghostMV3/workflow-roi-calc" target="_blank" rel="noreferrer">gridghostMV3/workflow-roi-calc</a></p>
+  </footer>
+</main>
+
+<!-- Toast -->
+<div id="toast" class="toast fixed bottom-5 left-1/2 -translate-x-1/2 z-50 px-4 py-3 rounded-xl bg-white text-slate-900 font-bold text-sm shadow-2xl flex items-center gap-2">
+  <span>✅</span><span id="toastMsg">Done</span>
+</div>
+
+<script>
+/* ============================================================
+   Workflow Bottleneck & ROI Calculator
+   State, calculations, chart, and Generate Fix engine
+   ============================================================ */
+const STORAGE_KEY = 'workflow-roi-tasks-v1';
+const WEEKS_PER_YEAR = 52;
+const AUTOMATION_RATE = 0.70;
+
+const DEFAULT_TASKS = [
+  { id:'t1', name:'Email triage & replies', category:'Communication', minutesPerDay:45, daysPerWeek:5, hourlyValue:50 },
+  { id:'t2', name:'Manual data entry & copy-paste', category:'Data & Admin', minutesPerDay:60, daysPerWeek:5, hourlyValue:35 },
+  { id:'t3', name:'Weekly reporting & spreadsheets', category:'Reporting', minutesPerDay:90, daysPerWeek:3, hourlyValue:65 },
+  { id:'t4', name:'Meeting notes & follow-ups', category:'Meetings', minutesPerDay:30, daysPerWeek:4, hourlyValue:75 },
+  { id:'t5', name:'Social media scheduling', category:'Marketing', minutesPerDay:25, daysPerWeek:5, hourlyValue:40 },
+];
+
+let tasks = loadTasks();
+let chart = null;
+const openFixes = new Set();
+
+function uid(){ return 't' + Math.random().toString(36).slice(2,9); }
+function loadTasks(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw){ const parsed = JSON.parse(raw); if(Array.isArray(parsed)) return parsed; }
+  }catch(e){}
+  return JSON.parse(JSON.stringify(DEFAULT_TASKS));
+}
+function saveTasks(){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks)); }catch(e){} }
+
+function calc(t){
+  const weeklyHours = (t.minutesPerDay * t.daysPerWeek) / 60;
+  const annualHours = weeklyHours * WEEKS_PER_YEAR;
+  const annualCost = annualHours * t.hourlyValue;
+  const weeklyCost = weeklyHours * t.hourlyValue;
+  return { weeklyHours, annualHours, annualCost, weeklyCost };
+}
+function fmtMoney(n){
+  if(n >= 1000000) return '$' + (n/1000000).toFixed(2) + 'M';
+  if(n >= 10000) return '$' + Math.round(n).toLocaleString('en-US');
+  return '$' + Math.round(n).toLocaleString('en-US');
+}
+function fmtNum(n, d=1){ return n.toLocaleString('en-US',{maximumFractionDigits:d, minimumFractionDigits:d}); }
+function esc(s){ return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+function toast(msg){
+  const el = document.getElementById('toast');
+  document.getElementById('toastMsg').textContent = msg;
+  el.classList.add('show');
+  clearTimeout(el._t);
+  el._t = setTimeout(()=>el.classList.remove('show'), 2200);
+}
+
+/* ---------- Slider fill helper ---------- */
+function paintRange(el){
+  const min = +el.min, max = +el.max, val = +el.value;
+  const pct = ((val - min) / (max - min)) * 100;
+  el.style.setProperty('--fill', pct + '%');
+}
+function bindSliderPair(rangeId, numId, onChange){
+  const r = document.getElementById(rangeId), n = document.getElementById(numId);
+  const sync = (fromRange)=>{
+    let v = fromRange ? +r.value : +n.value;
+    if(isNaN(v)) v = +r.min;
+    v = Math.max(+r.min, Math.min(+r.max, v));
+    r.value = v; n.value = v; paintRange(r);
+    onChange && onChange(v);
+  };
+  r.addEventListener('input', ()=>sync(true));
+  n.addEventListener('input', ()=>sync(false));
+  n.addEventListener('change', ()=>sync(false));
+  paintRange(r);
+  return ()=> +r.value;
+}
+
+/* ---------- Form ---------- */
+let getFMinutes, getFDays, getFRate;
+function initForm(){
+  getFMinutes = bindSliderPair('fMinutes','fMinutesNum', updateFormPreview);
+  getFDays = bindSliderPair('fDays','fDaysNum', updateFormPreview);
+  getFRate = bindSliderPair('fRate','fRateNum', updateFormPreview);
+  updateFormPreview();
+
+  document.getElementById('addForm').addEventListener('submit', (e)=>{
+    e.preventDefault();
+    const name = document.getElementById('fName').value.trim();
+    if(!name) return;
+    const task = {
+      id: uid(),
+      name,
+      category: document.getElementById('fCategory').value,
+      minutesPerDay: getFMinutes(),
+      daysPerWeek: getFDays(),
+      hourlyValue: getFRate(),
+    };
+    tasks.unshift(task);
+    saveTasks(); renderAll();
+    document.getElementById('fName').value = '';
+    document.getElementById('fName').focus();
+    toast('Task added — ' + fmtMoney(calc(task).annualCost) + '/yr impact');
+    document.getElementById('taskGrid').scrollIntoView({behavior:'smooth', block:'nearest'});
+  });
+}
+function updateFormPreview(){
+  const t = { minutesPerDay:getFMinutes?getFMinutes():30, daysPerWeek:getFDays?getFDays():5, hourlyValue:getFRate?getFRate():50 };
+  const c = calc(t);
+  const el = document.getElementById('formPreview');
+  if(el) el.innerHTML = fmtMoney(c.annualCost) + '<span class="text-xs text-slate-400 font-bold"> /yr</span>';
+}
+function fillExample(name, min, days, rate, cat){
+  document.getElementById('fName').value = name;
+  document.getElementById('fCategory').value = cat;
+  setPair('fMinutes','fMinutesNum', min);
+  setPair('fDays','fDaysNum', days);
+  setPair('fRate','fRateNum', rate);
+  updateFormPreview();
+  document.getElementById('fName').focus();
+}
+function setPair(rId, nId, v){
+  const r = document.getElementById(rId), n = document.getElementById(nId);
+  r.value = v; n.value = v; paintRange(r);
+}
+
+/* ---------- Rendering ---------- */
+function totals(){
+  return tasks.reduce((acc,t)=>{
+    const c = calc(t);
+    acc.weeklyHours += c.weeklyHours;
+    acc.annualHours += c.annualHours;
+    acc.annualCost += c.annualCost;
+    acc.weeklyCost += c.weeklyCost;
+    return acc;
+  }, {weeklyHours:0, annualHours:0, annualCost:0, weeklyCost:0});
+}
+
+function renderDashboard(){
+  const tot = totals();
+  document.getElementById('kpiWeekly').innerHTML = fmtNum(tot.weeklyHours,1) + '<span class="text-base font-bold text-slate-400 ml-1">hrs/wk</span>';
+  document.getElementById('kpiAnnual').innerHTML = Math.round(tot.annualHours).toLocaleString() + '<span class="text-base font-bold text-slate-400 ml-1">hrs/yr</span>';
+  document.getElementById('kpiDays').textContent = Math.round(tot.annualHours/8).toLocaleString() + ' full days';
+  document.getElementById('kpiCost').textContent = fmtMoney(tot.annualCost);
+  document.getElementById('kpiWeeklyCost').textContent = fmtMoney(tot.weeklyCost) + '/wk';
+  document.getElementById('kpiRecoverable').textContent = fmtMoney(tot.annualCost * AUTOMATION_RATE);
+  document.getElementById('kpiTasks').textContent = tasks.length + (tasks.length===1?' task':' tasks');
+  document.getElementById('taskCountBadge').textContent = tasks.length;
+}
+
+function sortedTasks(){
+  const mode = document.getElementById('sortSelect')?.value || 'cost';
+  const arr = [...tasks];
+  if(mode==='cost') arr.sort((a,b)=>calc(b).annualCost - calc(a).annualCost);
+  else if(mode==='hours') arr.sort((a,b)=>calc(b).annualHours - calc(a).annualHours);
+  else arr.sort((a,b)=>a.name.localeCompare(b.name));
+  return arr;
+}
+
+function renderChart(){
+  const canvas = document.getElementById('bottleneckChart');
+  const empty = document.getElementById('chartEmpty');
+  if(!tasks.length){ empty.classList.remove('hidden'); if(chart){chart.destroy(); chart=null;} return; }
+  empty.classList.add('hidden');
+
+  const sorted = sortedTasks();
+  const labels = sorted.map(t=> t.name.length>28 ? t.name.slice(0,27)+'…' : t.name);
+  const data = sorted.map(t=> Math.round(calc(t).annualCost));
+  const colors = ['#8B5CF6','#22D3EE','#34D399','#F59E0B','#F472B6','#60A5FA','#A78BFA','#94A3B8'];
+
+  const ctx = canvas.getContext('2d');
+  if(chart) chart.destroy();
+  chart = new Chart(ctx, {
+    type:'bar',
+    data:{
+      labels,
+      datasets:[{
+        label:'Annual cost ($)',
+        data,
+        backgroundColor: sorted.map((_,i)=> colors[i % colors.length] + 'CC'),
+        borderColor: sorted.map((_,i)=> colors[i % colors.length]),
+        borderWidth: 1.5,
+        borderRadius: 8,
+        barThickness: 22,
+      }]
+    },
+    options:{
+      indexAxis:'y',
+      responsive:true, maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        tooltip:{
+          backgroundColor:'#0D1424', borderColor:'rgba(148,163,184,.25)', borderWidth:1,
+          titleColor:'#fff', bodyColor:'#CBD5E1', padding:12, cornerRadius:10,
+          callbacks:{
+            label:(c)=>{
+              const t = sorted[c.dataIndex]; const cc = calc(t);
+              return [
+                ' Annual cost: ' + fmtMoney(cc.annualCost),
+                ' Weekly: ' + fmtNum(cc.weeklyHours,1) + ' hrs  ·  ' + fmtMoney(cc.weeklyCost) + '/wk',
+                ' ' + t.minutesPerDay + ' min/day × ' + t.daysPerWeek + ' days/wk @ $' + t.hourlyValue + '/hr'
+              ];
+            }
+          }
+        }
+      },
+      scales:{
+        x:{ grid:{color:'rgba(148,163,184,.08)'}, ticks:{color:'#94A3B8', font:{size:11}, callback:v=>'$'+(v>=1000?(v/1000)+'k':v)}, border:{display:false} },
+        y:{ grid:{display:false}, ticks:{color:'#E2E8F0', font:{size:12, weight:'600'}}, border:{display:false} }
+      },
+      animation:{duration:700, easing:'easeOutQuart'}
+    }
+  });
+}
+
+function renderInsights(){
+  const box = document.getElementById('topBottleneck');
+  const wins = document.getElementById('quickWins');
+  if(!tasks.length){
+    box.innerHTML = '<p class="text-sm text-slate-400">Add a task to identify your biggest bottleneck.</p>';
+    wins.innerHTML = '<li class="text-slate-500 text-sm">No tasks yet.</li>';
+    return;
+  }
+  const top = [...tasks].sort((a,b)=>calc(b).annualCost-calc(a).annualCost)[0];
+  const c = calc(top);
+  const tot = totals();
+  const share = tot.annualCost ? Math.round((c.annualCost/tot.annualCost)*100) : 0;
+  box.innerHTML = `
+    <div class="rounded-xl bg-white/[0.03] border border-white/10 p-4">
+      <p class="font-extrabold text-white leading-snug">${esc(top.name)}</p>
+      <p class="text-xs text-slate-400 mt-1">${esc(top.category)} · ${top.minutesPerDay} min/day × ${top.daysPerWeek} days/wk</p>
+      <div class="mt-3 flex items-end justify-between">
+        <p class="text-2xl font-black text-white">${fmtMoney(c.annualCost)}<span class="text-xs text-slate-400 font-bold">/yr</span></p>
+        <span class="text-xs font-bold px-2 py-1 rounded-full bg-rose-400/10 text-rose-300 border border-rose-400/20">${share}% of total cost</span>
+      </div>
+      <div class="mt-3 h-2 rounded-full bg-slate-800 overflow-hidden"><div class="h-full rounded-full bg-gradient-to-r from-violet-500 to-rose-400" style="width:${share}%"></div></div>
+      <button onclick="toggleFix('${top.id}', true); document.getElementById('card-${top.id}')?.scrollIntoView({behavior:'smooth',block:'center'})" class="mt-4 w-full grad-btn text-white text-sm font-extrabold py-2.5 rounded-xl transition active:scale-[0.98]">Generate fix for this →</button>
+    </div>`;
+
+  const quick = [...tasks].sort((a,b)=>calc(b).annualCost-calc(a).annualCost).slice(0,3);
+  wins.innerHTML = quick.map((t,i)=>{
+    const cc = calc(t);
+    return `<li class="flex gap-2.5"><span class="shrink-0 w-5 h-5 rounded-md bg-white/5 border border-white/10 text-[11px] font-black flex items-center justify-center text-slate-300">${i+1}</span><span><b class="text-white">${esc(t.name)}</b> — save ~${fmtMoney(cc.annualCost*AUTOMATION_RATE)}/yr</span></li>`;
+  }).join('');
+}
+
+function categoryColor(cat){
+  const map = { 'Communication':'bg-sky-400/10 text-sky-300 border-sky-400/20','Data & Admin':'bg-amber-400/10 text-amber-300 border-amber-400/20','Reporting':'bg-violet-400/10 text-violet-300 border-violet-400/20','Meetings':'bg-pink-400/10 text-pink-300 border-pink-400/20','Marketing':'bg-emerald-400/10 text-emerald-300 border-emerald-400/20','Finance':'bg-rose-400/10 text-rose-300 border-rose-400/20','Operations':'bg-cyan-400/10 text-cyan-300 border-cyan-400/20','Other':'bg-slate-400/10 text-slate-300 border-slate-400/20' };
+  return map[cat] || map['Other'];
+}
+
+function renderTasks(){
+  const grid = document.getElementById('taskGrid');
+  const empty = document.getElementById('emptyState');
+  if(!tasks.length){ grid.innerHTML=''; empty.classList.remove('hidden'); return; }
+  empty.classList.add('hidden');
+
+  const tot = totals();
+  const ordered = sortedTasks();
+
+  grid.innerHTML = ordered.map(t=>{
+    const c = calc(t);
+    const share = tot.annualCost ? Math.round((c.annualCost/tot.annualCost)*100) : 0;
+    const isOpen = openFixes.has(t.id);
+    return `
+    <article id="card-${t.id}" class="task-card glass rounded-2xl p-5 flex flex-col">
+      <div class="flex items-start justify-between gap-3">
+        <div class="min-w-0">
+          <h3 class="font-extrabold text-white leading-snug truncate" title="${esc(t.name)}">${esc(t.name)}</h3>
+          <span class="inline-flex mt-2 text-[11px] font-bold px-2 py-1 rounded-full border ${categoryColor(t.category)}">${esc(t.category)}</span>
+        </div>
+        <button onclick="deleteTask('${t.id}')" title="Remove task" class="shrink-0 w-8 h-8 rounded-lg border border-white/10 hover:bg-rose-500/10 hover:border-rose-400/30 hover:text-rose-300 flex items-center justify-center transition">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v6M14 11v6"/></svg>
+        </button>
+      </div>
+
+      <div class="grid grid-cols-3 gap-2 mt-4 text-center">
+        <div class="rounded-xl bg-white/[0.03] border border-white/10 py-2.5 px-1">
+          <p class="text-[10px] font-bold tracking-widest uppercase text-slate-500">Weekly</p>
+          <p class="font-black text-white text-sm mt-0.5">${fmtNum(c.weeklyHours,1)} hrs</p>
+        </div>
+        <div class="rounded-xl bg-white/[0.03] border border-white/10 py-2.5 px-1">
+          <p class="text-[10px] font-bold tracking-widest uppercase text-slate-500">Annual</p>
+          <p class="font-black text-white text-sm mt-0.5">${Math.round(c.annualHours)} hrs</p>
+        </div>
+        <div class="rounded-xl bg-rose-500/[0.07] border border-rose-400/15 py-2.5 px-1">
+          <p class="text-[10px] font-bold tracking-widest uppercase text-rose-300/70">Cost/yr</p>
+          <p class="font-black text-rose-200 text-sm mt-0.5">${fmtMoney(c.annualCost)}</p>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <div class="flex justify-between text-[11px] font-semibold text-slate-400 mb-1.5"><span>Share of total cost</span><span class="text-white font-bold">${share}%</span></div>
+        <div class="h-1.5 rounded-full bg-slate-800 overflow-hidden"><div class="h-full bg-gradient-to-r from-violet-500 to-cyan-400 rounded-full transition-all duration-500" style="width:${Math.max(share,3)}%"></div></div>
+      </div>
+
+      <div class="mt-5 space-y-4 flex-1">
+        <div>
+          <div class="flex justify-between items-center mb-1.5">
+            <label class="text-[11px] font-bold tracking-widest uppercase text-slate-400">Minutes / day</label>
+            <span class="text-xs font-black text-white bg-white/5 border border-white/10 px-2 py-0.5 rounded-md" id="lbl-min-${t.id}">${t.minutesPerDay} min</span>
+          </div>
+          <input type="range" min="5" max="240" step="5" value="${t.minutesPerDay}" class="w-full task-range" data-id="${t.id}" data-field="minutesPerDay" />
+        </div>
+        <div>
+          <div class="flex justify-between items-center mb-1.5">
+            <label class="text-[11px] font-bold tracking-widest uppercase text-slate-400">Days / week</label>
+            <span class="text-xs font-black text-white bg-white/5 border border-white/10 px-2 py-0.5 rounded-md" id="lbl-days-${t.id}">${t.daysPerWeek} days</span>
+          </div>
+          <input type="range" min="1" max="7" step="1" value="${t.daysPerWeek}" class="w-full task-range" data-id="${t.id}" data-field="daysPerWeek" />
+        </div>
+        <div>
+          <div class="flex justify-between items-center mb-1.5">
+            <label class="text-[11px] font-bold tracking-widest uppercase text-slate-400">Hourly value</label>
+            <span class="text-xs font-black text-white bg-white/5 border border-white/10 px-2 py-0.5 rounded-md" id="lbl-rate-${t.id}">$${t.hourlyValue}/hr</span>
+          </div>
+          <input type="range" min="10" max="200" step="5" value="${t.hourlyValue}" class="w-full task-range" data-id="${t.id}" data-field="hourlyValue" />
+        </div>
+      </div>
+
+      <button onclick="toggleFix('${t.id}')" class="mt-5 w-full ${isOpen ? 'bg-white text-slate-900' : 'grad-btn text-white'} font-extrabold py-3 rounded-xl transition active:scale-[0.98] flex items-center justify-center gap-2">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13L13 2Z"/></svg>
+        ${isOpen ? 'Hide fix' : 'Generate Fix'}
+      </button>
+
+      <div id="fix-${t.id}" class="fix-panel ${isOpen ? 'open' : ''}">
+        <div class="pt-4">${fixHTML(t)}</div>
+      </div>
+    </article>`;
+  }).join('');
+
+  // Wire sliders
+  grid.querySelectorAll('.task-range').forEach(el=>{
+    paintRange(el);
+    el.addEventListener('input', ()=>{
+      paintRange(el);
+      const id = el.dataset.id, field = el.dataset.field;
+      const task = tasks.find(x=>x.id===id);
+      if(!task) return;
+      task[field] = +el.value;
+      saveTasks();
+      // Update labels without full re-render (keeps slider drag smooth)
+      const c = calc(task);
+      const card = document.getElementById('card-'+id);
+      if(card){
+        const lblMin = document.getElementById('lbl-min-'+id);
+        const lblDays = document.getElementById('lbl-days-'+id);
+        const lblRate = document.getElementById('lbl-rate-'+id);
+        if(lblMin) lblMin.textContent = task.minutesPerDay + ' min';
+        if(lblDays) lblDays.textContent = task.daysPerWeek + ' days';
+        if(lblRate) lblRate.textContent = '$' + task.hourlyValue + '/hr';
+        // Update metric cells
+        const cells = card.querySelectorAll('.grid-cols-3 > div p:last-child');
+        if(cells[0]) cells[0].textContent = fmtNum(c.weeklyHours,1) + ' hrs';
+        if(cells[1]) cells[1].textContent = Math.round(c.annualHours) + ' hrs';
+        if(cells[2]) cells[2].textContent = fmtMoney(c.annualCost);
+      }
+      renderDashboard(); renderChart(); renderInsights();
+      // Debounced full re-render to refresh shares/order on release
+      clearTimeout(el._rt);
+      el._rt = setTimeout(()=>{ if(!el.matches(':active')) renderTasks(); }, 600);
+    });
+    el.addEventListener('change', ()=> renderTasks());
+  });
+}
+
+function deleteTask(id){
+  const t = tasks.find(x=>x.id===id);
+  tasks = tasks.filter(x=>x.id!==id);
+  openFixes.delete(id);
+  saveTasks(); renderAll();
+  toast('Removed "' + (t ? t.name : 'task') + '"');
+}
+
+function toggleFix(id, forceOpen){
+  if(forceOpen){ openFixes.add(id); }
+  else if(openFixes.has(id)) openFixes.delete(id);
+  else openFixes.add(id);
+  renderTasks();
+}
+
+function renderAll(){
+  renderDashboard();
+  renderChart();
+  renderInsights();
+  renderTasks();
+}
+
+/* ============================================================
+   Generate Fix engine — tailored suggestions per task type
+   ============================================================ */
+function detectType(t){
+  const s = (t.name + ' ' + t.category).toLowerCase();
+  if(/email|inbox|mail|reply|replies|slack|chat|message|approval|chasing/.test(s)) return 'communication';
+  if(/data entry|copy|paste|spreadsheet|excel|sheet|manual|typing|form/.test(s)) return 'data';
+  if(/report|reporting|dashboard|kpi|analytics|client report/.test(s)) return 'reporting';
+  if(/meeting|notes|follow.?up|schedul|calendar|reschedul/.test(s)) return 'meetings';
+  if(/social|content|post|marketing|blog|caption/.test(s)) return 'marketing';
+  if(/invoice|billing|finance|payment|expense|receipt|account/.test(s)) return 'finance';
+  return 'generic';
+}
+
+function getFixes(t){
+  const type = detectType(t);
+  const c = calc(t);
+  const savedHrs = Math.round(c.annualHours * 0.7);
+  const savedMoney = fmtMoney(c.annualCost * 0.7);
+  const base = { savedHrs, savedMoney };
+
+  const LIB = {
+    communication: [
+      { tag:'Template', color:'bg-violet-400/10 text-violet-300 border-violet-400/20', title:'Reply templates + snippets', desc:'Turn your top 10 recurring replies into one-click templates (Gmail snippets, TextExpander, or Notion). Cuts drafting time by ~60%.', tools:'Gmail · TextExpander · Notion', prompt:`Create 10 email reply templates for my role. For each: subject line, tone, placeholders in [brackets], and a 2-sentence body. Categories: follow-up, decline, quote request, delivery update, thank-you.` },
+      { tag:'Batching', color:'bg-cyan-400/10 text-cyan-300 border-cyan-400/20', title:'Batch inbox into 2 windows', desc:'Check email only at 10am & 4pm. Use labels/filters to auto-sort newsletters, receipts, and low-priority mail out of your main inbox.', tools:'Gmail filters · Outlook rules', prompt:`Design an email batching system for me: propose 6 Gmail labels, filter rules for each, and a 2x-daily triage checklist that takes under 15 minutes per session.` },
+      { tag:'AI Prompt', color:'bg-emerald-400/10 text-emerald-300 border-emerald-400/20', title:'AI draft-then-edit workflow', desc:'Paste the thread into your AI assistant, get a draft in your voice, then just approve/edit. Never start from a blank page again.', tools:'ChatGPT · Claude · Gemini', prompt:`You are my executive assistant. Given this email thread: [PASTE THREAD]. Write a reply that is: concise (under 80 words), warm but direct, confirms next step + date, and ends with one clear question. Give me 2 variants: short and detailed.` },
+      { tag:'No-Code Trigger', color:'bg-amber-400/10 text-amber-300 border-amber-400/20', title:'Auto-route & auto-reply', desc:'Trigger: new email with keyword → auto-label, auto-reply with FAQ link, and create a task in your tracker. Humans only handle exceptions.', tools:'Make · Zapier · n8n', prompt:`Design a no-code automation: Trigger = new email matching [keyword]. Steps: 1) label it, 2) send templated reply, 3) create task in [tool], 4) notify me on Slack only if sentiment is negative. Include exact field mappings.` },
+    ],
+    data: [
+      { tag:'Template', color:'bg-violet-400/10 text-violet-300 border-violet-400/20', title:'Standardize the source format', desc:'Force a single clean template (CSV/Google Form) at the source. 80% of data-entry pain comes from messy inputs — fix the input, not the typing.', tools:'Google Forms · Typeform · CSV', prompt:`Design a standardized data intake form for: [DESCRIBE DATA]. List every field, its format, validation rule, and example. Output as a table I can paste into Google Forms.` },
+      { tag:'Batching', color:'bg-cyan-400/10 text-cyan-300 border-cyan-400/20', title:'Batch into one weekly session', desc:'Stop context-switching daily. Collect all entries and process in one focused 90-minute block with music + checklist.', tools:'Calendar block · Checklist', prompt:`Create a weekly data-entry batching checklist: pre-work setup, 5-step processing order, quality checks, and a 10-minute shutdown routine to prevent errors.` },
+      { tag:'AI Prompt', color:'bg-emerald-400/10 text-emerald-300 border-emerald-400/20', title:'AI extraction from messy text', desc:'Paste unstructured text/PDFs and get clean, validated rows back. Works for invoices, forms, and screenshots.', tools:'ChatGPT · Claude · OCR tools', prompt:`Extract structured data from the text below into a CSV with columns: [COL1, COL2, COL3]. Rules: ISO dates, numbers only (no currency symbols), flag anything missing as NEEDS_REVIEW. Text: [PASTE TEXT]` },
+      { tag:'No-Code Trigger', color:'bg-amber-400/10 text-amber-300 border-amber-400/20', title:'Form → Sheet → CRM sync', desc:'Trigger: form submitted → auto-append to Sheet → upsert into CRM → notify owner. Zero copy-paste, ever.', tools:'Make · Zapier · n8n · Airtable', prompt:`Design a no-code flow: Trigger = Google Form submit. Steps: 1) validate fields, 2) append row to Google Sheet, 3) create/update record in Airtable/CRM, 4) send Slack summary. Include error handling for duplicates.` },
+    ],
+    reporting: [
+      { tag:'Template', color:'bg-violet-400/10 text-violet-300 border-violet-400/20', title:'One live dashboard, zero rebuilds', desc:'Replace the weekly rebuild with a single live dashboard that pulls data automatically. Humans only add commentary.', tools:'Looker Studio · Notion · Sheets', prompt:`Design a weekly reporting dashboard for: [DESCRIBE METRICS]. Propose 5 KPI cards, 3 charts, and the exact data sources + refresh cadence for each. Keep it to one page.` },
+      { tag:'Batching', color:'bg-cyan-400/10 text-cyan-300 border-cyan-400/20', title:'Freeze the numbers once', desc:'Agree a single Friday 4pm data freeze. All inputs lock, report generates, commentary is the only manual step left.', tools:'Calendar · Shared doc', prompt:`Write a 1-page reporting SOP: data freeze time, owner per metric, commentary template (What changed / Why / What next), and distribution checklist. Make it copy-paste ready.` },
+      { tag:'AI Prompt', color:'bg-emerald-400/10 text-emerald-300 border-emerald-400/20', title:'AI writes the commentary', desc:'Paste the raw numbers, get a client-ready narrative: what changed, why it matters, and the recommended action.', tools:'ChatGPT · Claude', prompt:`You are a senior analyst. Here are this week's numbers: [PASTE NUMBERS]. Write: 1) 3-bullet summary, 2) biggest mover + likely cause, 3) one recommended action, 4) risks to watch. Tone: confident, plain English, no jargon.` },
+      { tag:'No-Code Trigger', color:'bg-amber-400/10 text-amber-300 border-amber-400/20', title:'Scheduled auto-report email', desc:'Trigger: weekly schedule → pull metrics → generate charts → email PDF to stakeholders. You review, not rebuild.', tools:'Make · Zapier · n8n', prompt:`Design a scheduled automation: every Monday 8am, pull [METRICS] from [SOURCE], build a summary table, and email it to [RECIPIENTS]. Include fallback if data is missing.` },
+    ],
+    meetings: [
+      { tag:'Template', color:'bg-violet-400/10 text-violet-300 border-violet-400/20', title:'Agenda + notes template', desc:'A fixed agenda and notes template kills rambling and makes follow-ups copy-pasteable. Same structure every time.', tools:'Notion · Google Docs', prompt:`Create a meeting notes template with: Attendees, Goal (1 line), Agenda (timeboxed), Decisions, Action items (owner + due date), Parking lot. Fill in a worked example for a weekly sync.` },
+      { tag:'Batching', color:'bg-cyan-400/10 text-cyan-300 border-cyan-400/20', title:'No-meeting blocks + async first', desc:'Default to async updates. Reserve meetings for decisions only, and batch them into 2 afternoons per week.', tools:'Calendar · Slack/Notion', prompt:`Audit my meeting load: [PASTE CALENDAR]. Classify each meeting as Async-able / Decision-only / Kill. Propose a new weekly calendar with 2 meeting afternoons and async update templates.` },
+      { tag:'AI Prompt', color:'bg-emerald-400/10 text-emerald-300 border-emerald-400/20', title:'AI turns transcript → actions', desc:'Record/transcribe, then let AI extract decisions and action items with owners. You just approve.', tools:'Otter · Fireflies · ChatGPT', prompt:`From this meeting transcript: [PASTE TRANSCRIPT]. Extract: Decisions (with rationale), Action items (owner, task, due date), Open questions. Output as a table + a 3-line Slack summary.` },
+      { tag:'No-Code Trigger', color:'bg-amber-400/10 text-amber-300 border-amber-400/20', title:'Calendar → notes → tasks pipeline', desc:'Trigger: meeting ends → notes doc created → action items become tasks → summary posted to channel. Fully hands-off.', tools:'Make · Zapier · n8n', prompt:`Design an automation: Trigger = calendar event ends. Steps: 1) create notes doc from template, 2) extract action items via AI, 3) create tasks in [TOOL], 4) post summary to Slack. Include field mappings.` },
+    ],
+    marketing: [
+      { tag:'Template', color:'bg-violet-400/10 text-violet-300 border-violet-400/20', title:'Content pillars + hooks bank', desc:'Pre-write 30 hooks and 5 pillar templates. Scheduling becomes assembly, not invention.', tools:'Notion · Airtable', prompt:`Create 5 content pillars for [NICHE/AUDIENCE], 6 hooks per pillar, and a reusable post template for each (Hook / Story / Lesson / CTA). Output as a table.` },
+      { tag:'Batching', color:'bg-cyan-400/10 text-cyan-300 border-cyan-400/20', title:'Batch-create, then schedule a month', desc:'One 2-hour session creates a month of content. Schedule everything, then engage daily in 15 minutes.', tools:'Buffer · Later · Metricool', prompt:`Build a 30-day content calendar for [BRAND] on [PLATFORMS]: for each day give topic, hook, format, and CTA. Mix: 40% education, 30% story, 20% proof, 10% offer.` },
+      { tag:'AI Prompt', color:'bg-emerald-400/10 text-emerald-300 border-emerald-400/20', title:'One idea → 5 platform versions', desc:'Write once, repurpose everywhere with AI. A single idea becomes a post, thread, carousel outline, and script.', tools:'ChatGPT · Claude', prompt:`Turn this core idea into 5 assets: [PASTE IDEA]. Output: 1) LinkedIn post (150 words), 2) X thread (5 tweets), 3) carousel outline (7 slides), 4) 60-sec video script, 5) newsletter section. Keep my voice: [DESCRIBE VOICE].` },
+      { tag:'No-Code Trigger', color:'bg-amber-400/10 text-amber-300 border-amber-400/20', title:'Idea inbox → auto-draft → scheduler', desc:'Trigger: idea added to inbox → AI drafts all versions → saved to scheduler queue for your approval.', tools:'Make · n8n · Airtable', prompt:`Design a flow: Trigger = new row in Airtable Ideas. Steps: 1) AI generates 3 platform drafts, 2) save drafts back to Airtable, 3) push approved draft to [SCHEDULER]. Include approval step logic.` },
+    ],
+    finance: [
+      { tag:'Template', color:'bg-violet-400/10 text-violet-300 border-violet-400/20', title:'Receipt & invoice SOP', desc:'One naming convention + one folder structure. Future-you (and your accountant) will say thanks.', tools:'Drive · Notion', prompt:`Create a finance filing SOP: folder structure, file naming convention (YYYY-MM-DD_vendor_amount), required metadata per document, and a monthly close checklist.` },
+      { tag:'Batching', color:'bg-cyan-400/10 text-cyan-300 border-cyan-400/20', title:'Monthly finance block', desc:'Stop daily finance drips. One 90-minute monthly block: reconcile, categorize, export. Everything else is auto-captured.', tools:'Calendar · Accounting tool', prompt:`Design a monthly finance close routine (90 min): pre-work, reconciliation steps in order, exception handling, and a 5-point final check before closing the month.` },
+      { tag:'AI Prompt', color:'bg-emerald-400/10 text-emerald-300 border-emerald-400/20', title:'AI categorizes transactions', desc:'Export transactions, paste them in, get clean categories + flags for anomalies and duplicates.', tools:'ChatGPT · Claude', prompt:`Categorize these transactions into: [CATEGORIES]. For each row output: date, merchant, amount, category, confidence (High/Med/Low), flag if duplicate or unusual. Transactions: [PASTE CSV]` },
+      { tag:'No-Code Trigger', color:'bg-amber-400/10 text-amber-300 border-amber-400/20', title:'Receipt → ledger → report', desc:'Trigger: receipt emailed → OCR extracts data → ledger updated → monthly summary generated. Manual work: approve exceptions only.', tools:'Make · Zapier · n8n', prompt:`Design a finance automation: Trigger = email with attachment. Steps: 1) OCR extract vendor/date/amount, 2) append to ledger Sheet, 3) flag if amount > threshold, 4) monthly summary email. Include dedupe logic by receipt ID.` },
+    ],
+    generic: [
+      { tag:'Template', color:'bg-violet-400/10 text-violet-300 border-violet-400/20', title:'Checklist the task', desc:'Write the task as a numbered checklist with exact inputs/outputs. If it can be written down, it can be templated or automated.', tools:'Notion · Docs', prompt:`Turn this task into a step-by-step SOP checklist: [DESCRIBE TASK]. For each step: input needed, action, output, and time estimate. Flag steps that could be automated.` },
+      { tag:'Batching', color:'bg-cyan-400/10 text-cyan-300 border-cyan-400/20', title:'Batch + timebox it', desc:'Do it less often, in one focused block, with a timer. Batching alone typically saves 20–30% via reduced context-switching.', tools:'Calendar · Timer', prompt:`Create a batching plan for: [TASK]. Propose frequency, block length, pre-work, focus rules, and a shutdown checklist. Estimate time saved vs. doing it daily.` },
+      { tag:'AI Prompt', color:'bg-emerald-400/10 text-emerald-300 border-emerald-400/20', title:'AI does the first 80%', desc:'Give AI the inputs and the desired output format. You review and polish instead of starting from zero.', tools:'ChatGPT · Claude · Gemini', prompt:`You are an expert assistant for: [TASK]. Inputs: [PASTE INPUTS]. Produce: [DESIRED OUTPUT FORMAT]. Rules: [CONSTRAINTS]. If anything is missing, ask me before guessing.` },
+      { tag:'No-Code Trigger', color:'bg-amber-400/10 text-amber-300 border-amber-400/20', title:'Trigger → action → notify', desc:'Map the task to a trigger (schedule/form/email) and an action (create/update/send). Most repetitive tasks fit this pattern.', tools:'Make · Zapier · n8n', prompt:`Design a no-code automation for: [TASK]. Define: Trigger, 3-5 action steps, data fields passed between steps, and error/approval handling. Use Make.com terminology.` },
+    ],
+  };
+
+  return { fixes: LIB[type] || LIB.generic, ...base };
+}
+
+function fixHTML(t){
+  const { fixes, savedHrs, savedMoney } = getFixes(t);
+  return `
+    <div class="rounded-xl bg-gradient-to-br from-violet-600/15 to-cyan-500/10 border border-violet-400/20 p-4">
+      <div class="flex items-center justify-between flex-wrap gap-2">
+        <p class="font-extrabold text-white text-sm">🎯 Tailored automation plan</p>
+        <span class="text-[11px] font-bold px-2 py-1 rounded-full bg-emerald-400/10 text-emerald-300 border border-emerald-400/20">Save ~${savedHrs} hrs · ${savedMoney}/yr</span>
+      </div>
+      <p class="text-xs text-slate-400 mt-1">Pick one to start this week — even the smallest fix usually pays back in days.</p>
+    </div>
+    <div class="space-y-3 mt-3">
+      ${fixes.map((f,i)=>`
+        <div class="rounded-xl bg-white/[0.03] border border-white/10 p-4">
+          <div class="flex items-center justify-between gap-2 flex-wrap">
+            <p class="font-bold text-white text-sm">${i+1}. ${esc(f.title)}</p>
+            <span class="text-[10px] font-black tracking-widest uppercase px-2 py-1 rounded-full border ${f.color}">${esc(f.tag)}</span>
+          </div>
+          <p class="text-sm text-slate-300 leading-relaxed mt-2">${esc(f.desc)}</p>
+          <p class="text-[11px] font-semibold text-slate-500 mt-2">🛠 ${esc(f.tools)}</p>
+          <div class="mt-3 rounded-lg bg-[#070B14] border border-white/10 p-3">
+            <div class="flex items-center justify-between mb-2">
+              <p class="text-[10px] font-black tracking-widest uppercase text-slate-500">Copy-paste AI prompt</p>
+              <button onclick="copyPrompt('${t.id}', ${i})" class="text-[11px] font-bold px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 transition">📋 Copy</button>
+            </div>
+            <p id="prompt-${t.id}-${i}" class="text-xs text-slate-300 leading-relaxed font-mono whitespace-pre-wrap">${esc(f.prompt)}</p>
+          </div>
+        </div>`).join('')}
+    </div>
+    <p class="text-[11px] text-slate-500 mt-3 text-center">Estimates assume ~70% of the task is automatable. Start with the AI Prompt — it's free and instant.</p>`;
+}
+
+function copyPrompt(taskId, idx){
+  const el = document.getElementById('prompt-' + taskId + '-' + idx);
+  if(!el) return;
+  const text = el.textContent;
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(()=>toast('AI prompt copied — paste it into your AI tool')).catch(()=>fallbackCopy(text));
+  } else fallbackCopy(text);
+}
+function fallbackCopy(text){
+  const ta = document.createElement('textarea');
+  ta.value = text; ta.style.position='fixed'; ta.style.opacity='0';
+  document.body.appendChild(ta); ta.select();
+  try{ document.execCommand('copy'); toast('AI prompt copied'); }catch(e){ toast('Copy failed — select the text manually'); }
+  document.body.removeChild(ta);
+}
+
+/* ---------- Export / Reset ---------- */
+function exportCSV(){
+  if(!tasks.length){ toast('Nothing to export yet'); return; }
+  const rows = [['Task','Category','Minutes/Day','Days/Week','Hourly Value ($)','Weekly Hours','Annual Hours','Annual Cost ($)']];
+  tasks.forEach(t=>{
+    const c = calc(t);
+    rows.push([t.name, t.category, t.minutesPerDay, t.daysPerWeek, t.hourlyValue, c.weeklyHours.toFixed(2), Math.round(c.annualHours), Math.round(c.annualCost)]);
+  });
+  const csv = rows.map(r=> r.map(v=> '"' + String(v).replace(/"/g,'""') + '"').join(',')).join('\n');
+  const blob = new Blob([csv], {type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'workflow-bottlenecks.csv'; a.click();
+  URL.revokeObjectURL(url);
+  toast('CSV exported');
+}
+function resetDemo(){
+  tasks = JSON.parse(JSON.stringify(DEFAULT_TASKS));
+  openFixes.clear();
+  saveTasks(); renderAll();
+  toast('Demo data restored');
+}
+
+/* ---------- Init ---------- */
+initForm();
+renderAll();
+</script>
+</body>
+</html>
